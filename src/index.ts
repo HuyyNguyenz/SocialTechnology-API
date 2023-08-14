@@ -15,6 +15,10 @@ dotenv.config()
 const app: Express = express()
 const port = process.env.PORT || 8080
 
+app.get('/', (req, res) => {
+  res.send('SERVER ON')
+})
+
 // Config express get value from request body
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
