@@ -86,8 +86,8 @@ const postService = {
   },
   handleGetSharesPost: async (postId: number) => {
     const ep = new ExtraPost()
-    const resultShare = await ep.getAllById(postId, 'share')
-    const resultShareTo = await ep.getAllById(postId, 'shareTo')
+    const resultShare: any[] = await ep.getAllById(postId, 'share')
+    const resultShareTo: any[] = await ep.getAllById(postId, 'shareTo')
     return [...resultShare, ...resultShareTo]
   }
 }
