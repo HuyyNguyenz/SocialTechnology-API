@@ -83,7 +83,7 @@ const userService = {
       const sql = 'UPDATE `users` SET token=? WHERE id=?'
       const values = [refreshToken, result[0].id]
       await user.update(sql, values)
-      return { message: 'Đăng nhập thành công', status: 200, accessToken, refreshToken }
+      return { message: 'Đăng nhập thành công', status: 200, accessToken, refreshToken, user: result[0] }
     } else {
       return { message: 'Sai thông tin đăng nhập!', status: 404 }
     }
