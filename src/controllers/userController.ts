@@ -38,14 +38,6 @@ const userController = {
       const avatar = result.data.avatar !== '' ? JSON.parse(result.data.avatar) : ''
       const backgroundImage = result.data.backgroundImage !== '' ? JSON.parse(result.data.backgroundImage) : ''
       res.status(result.status).json({ ...result.data, avatar, backgroundImage })
-    } else {
-      const userData = JSON.parse(req.headers.user as string)
-      if (userData.id) {
-        const result = await userService.handleGetUser(userData.id)
-        const avatar = result.data.avatar !== '' ? JSON.parse(result.data.avatar) : ''
-        const backgroundImage = result.data.backgroundImage !== '' ? JSON.parse(result.data.backgroundImage) : ''
-        res.status(result.status).json({ ...result.data, avatar, backgroundImage })
-      }
     }
   },
   getAllUser: async (req: Request, res: Response) => {

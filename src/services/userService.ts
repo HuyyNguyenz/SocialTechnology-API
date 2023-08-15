@@ -83,15 +83,15 @@ const userService = {
       const sql = 'UPDATE `users` SET token=? WHERE id=?'
       const values = [refreshToken, result[0].id]
       await user.update(sql, values)
-      return { message: 'Đăng nhập thành công', status: 200, accessToken, refreshToken, user: result[0] }
+      return { message: 'Đăng nhập thành công', status: 200, accessToken, refreshToken }
     } else {
       return { message: 'Sai thông tin đăng nhập!', status: 404 }
     }
   },
   handleGetUser: async (userId: string) => {
     const user = new User()
-    const sql = 'SELECT * FROM `users` WHERE id=? OR username=?'
-    const values = [userId, userId]
+    const sql = 'SELECT * FROM `users` WHERE id=? OR username=? OR token=?'
+    const values = [userId, userId, userId]
     const result = await user.find(sql, values)
     if (result.length > 0) {
       const { password, token, otpCode, socketId, ...data } = result[0]
