@@ -1,7 +1,7 @@
-import ExtraPost from '~/models/ExtraPost'
-import Notify from '~/models/Notify'
-import Post from '~/models/Post'
-import { PostType } from '~/types/postType'
+import ExtraPost from '../models/ExtraPost'
+import Notify from '../models/Notify'
+import Post from '../models/Post'
+import { PostType } from '../types/postType'
 
 const postService = {
   handleGetPostList: async (limit: number, offset: number) => {

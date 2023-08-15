@@ -1,8 +1,8 @@
-import Comment from '~/models/Comment'
-import Notify from '~/models/Notify'
-import Post from '~/models/Post'
-import { CommentType } from '~/types/commentType'
-import { PostType } from '~/types/postType'
+import Comment from '../models/Comment'
+import Notify from '../models/Notify'
+import Post from '../models/Post'
+import { CommentType } from '../types/commentType'
+import { PostType } from '../types/postType'
 
 const commentService = {
   handleGetCommentList: async () => {

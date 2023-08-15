@@ -1,8 +1,8 @@
-import Message from '~/models/Message'
-import Notify from '~/models/Notify'
-import User from '~/models/User'
-import { MessageType } from '~/types/messageType'
-import { UserType } from '~/types/userType'
+import Message from '../models/Message'
+import Notify from '../models/Notify'
+import User from '../models/User'
+import { MessageType } from '../types/messageType'
+import { UserType } from '../types/userType'
 
 const messageService = {
   handleGetMessageList: async () => {

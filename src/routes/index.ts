@@ -1,9 +1,9 @@
 import express, { Router, Express } from 'express'
-import userController from '~/controllers/userController'
-import verifyToken from '~/middlewares/verifyToken'
-import verifyEmail from '~/middlewares/verifyEmail'
-import verifyOtp from '~/middlewares/verifyOtp'
-import verifyUser from '~/middlewares/verifyUser'
+import userController from '../controllers/userController'
+import verifyToken from '../middlewares/verifyToken'
+import verifyEmail from '../middlewares/verifyEmail'
+import verifyOtp from '../middlewares/verifyOtp'
+import verifyUser from '../middlewares/verifyUser'
 
 const router: Router = express.Router()
 

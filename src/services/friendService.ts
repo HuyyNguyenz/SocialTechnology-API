@@ -1,6 +1,6 @@
-import Friend from '~/models/Friend'
-import Notify from '~/models/Notify'
-import { FriendType } from '~/types/friendType'
+import Friend from '../models/Friend'
+import Notify from '../models/Notify'
+import { FriendType } from '../types/friendType'
 
 const friendService = {
   handleGetAllFriend: async () => {

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import User from '~/models/User'
+import User from '../models/User'
 
 const verifyOtp = async (req: Request, res: Response, next: NextFunction) => {
   const { otpCode, userEmail } = req.body

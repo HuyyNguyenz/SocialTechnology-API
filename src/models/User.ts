@@ -1,4 +1,4 @@
-import connectDb from '~/utils/connectDb'
+import connectDb from '../utils/connectDb'
 
 class User {
   username?: string

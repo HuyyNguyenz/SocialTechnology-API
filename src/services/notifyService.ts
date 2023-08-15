@@ -1,4 +1,4 @@
-import Notify from '~/models/Notify'
+import Notify from '../models/Notify'
 
 const notifyService = {
   handleGetNotifyList: async () => {

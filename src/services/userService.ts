@@ -3,9 +3,9 @@ import jwt from 'jsonwebtoken'
 import jwt_decode from 'jwt-decode'
 import nodemailer from 'nodemailer'
 import otpGenerator from 'otp-generator'
-import User from '~/models/User'
-import { LoginData, UserType } from '~/types/userType'
-import { emailGen } from '~/utils/email'
+import User from '../models/User'
+import { LoginData, UserType } from '../types/userType'
+import { emailGen } from '../utils/email'
 
 const userService = {
   generateAccessToken: (userId: number, expiresIn: string) => {
