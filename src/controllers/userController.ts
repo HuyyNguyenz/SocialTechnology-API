@@ -35,8 +35,12 @@ const userController = {
     const { id } = req.params
     if (id) {
       const result = await userService.handleGetUser(id)
-      const avatar = result.data.avatar !== '' ? JSON.parse(result.data.avatar) : ''
-      const backgroundImage = result.data.backgroundImage !== '' ? JSON.parse(result.data.backgroundImage) : ''
+      const avatar = result.data ? (result.data.avatar !== '' ? JSON.parse(result.data.avatar) : '') : ''
+      const backgroundImage = result.data
+        ? result.data.backgroundImage !== ''
+          ? JSON.parse(result.data.backgroundImage)
+          : ''
+        : ''
       res.status(result.status).json({ ...result.data, avatar, backgroundImage })
     }
   },
