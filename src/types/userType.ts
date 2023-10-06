@@ -4,7 +4,7 @@ export interface UserType {
   firstName: string
   lastName: string
   birthDay: string
-  gender: string
+  gender: Gender
   createdAt: string
   id?: string
   username?: string
@@ -20,4 +20,9 @@ export interface UserType {
 export interface LoginData {
   email: string
   password: string
+}
+
+export enum Gender {
+  MALE = 'male',
+  FEMALE = 'female'
 }

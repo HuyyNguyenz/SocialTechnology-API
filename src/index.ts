@@ -10,6 +10,7 @@ import Friend from './models/Friend'
 import { PostType } from './types/postType'
 import { UserType } from './types/userType'
 import { FriendType } from './types/friendType'
+import userRouter from './routes/userRoutes'
 
 dotenv.config()
 const app: Express = express()
@@ -20,19 +21,20 @@ app.get('/', (req, res) => {
 })
 
 // Config express get value from request body
-app.use(express.urlencoded({ extended: true }))
+// app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
 // Config CORS
 app.use(cors())
-app.use((req: Request, res: Response, next: NextFunction) => {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE')
-  res.header('Access-Control-Allow-Headers', 'Content-type')
-  next()
-})
+// app.use((req: Request, res: Response, next: NextFunction) => {
+//   res.header('Access-Control-Allow-Origin', '*')
+//   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE')
+//   res.header('Access-Control-Allow-Headers', 'Content-type')
+//   next()
+// })
 
-initialRoutes(app)
+// initialRoutes(app)
+app.use('/api', userRouter)
 
 const server = http.createServer(app)
 

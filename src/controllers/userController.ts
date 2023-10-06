@@ -8,6 +8,7 @@ import { FriendType } from '../types/friendType'
 import notifyService from '../services/notifyService'
 import messageService from '../services/messageService'
 import axios from 'axios'
+import { ParamsDictionary } from 'express-serve-static-core'
 
 const userController = {
   verifyUser: async (req: Request, res: Response) => {
@@ -17,11 +18,14 @@ const userController = {
       res.status(200).json(result)
     }
   },
-  registerUser: async (req: Request, res: Response) => {
-    const userData: UserType = req.body
+  registerUser: async (req: Request<ParamsDictionary, any, UserType>, res: Response) => {
+    const userData = req.body
     if (userData) {
-      const result = await userService.handleRegister(userData)
-      res.status(result.status).json(result)
+      // const result = await userService.handleRegister(userData)
+      // res.status(result.status).json(result)
+      return res.json({
+        userData
+      })
     }
   },
   loginUser: async (req: Request, res: Response) => {
