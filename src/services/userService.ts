@@ -4,8 +4,13 @@ import jwt_decode from 'jwt-decode'
 import nodemailer from 'nodemailer'
 import otpGenerator from 'otp-generator'
 import User from '../models/User'
-import { LoginData, UserType } from '../types/userType'
+import { UserType } from '../types/userType'
 import { emailGen } from '../utils/email'
+import { USER_MESSAGES } from '~/constants/messages'
+import HTTP_STATUS from '~/constants/httpStatus'
+import { config } from 'dotenv'
+
+config()
 
 const userService = {
   generateAccessToken: (userId: number, expiresIn: string) => {
@@ -26,14 +31,14 @@ const userService = {
       { expiresIn }
     )
   },
-  handleRegister: async (userData: UserType) => {
+  handleRegister: async (userData: UserType): Promise<{ message: string; status: number }> => {
     const { email, password, firstName, lastName, birthDay, gender, createdAt } = userData
     const username = email.split('@')[0] + birthDay.split('/')[0] + birthDay.split('/')[1]
     const md5Password = md5(password)
     const user = new User(username, email, md5Password, firstName, lastName, birthDay, gender, createdAt)
     const result = await user.insert()
     if (result.code === 'ER_DUP_ENTRY') {
-      return { message: 'Email đã được đăng ký!', status: 409, code: result.code }
+      return { message: USER_MESSAGES.EMAIL_IS_ALREADY_EXISTS, status: HTTP_STATUS.UNPROCESSABLE_ENTITY }
     } else {
       const config = {
         service: 'gmail',
@@ -47,46 +52,37 @@ const userService = {
         userData.lastName,
         'Social Technology',
         `${process.env.CLIENT}/verify/register/${username}`,
-        'XÁC THỰC EMAIL',
-        'Về việc đăng ký tài khoản Social Technology',
-        'Để hoàn tất việc đăng ký tài khoản. Bạn cần nhấn vào nút bên dưới để xác thực email'
+        'EMAIL VERIFY',
+        'About registering a Social Technology account',
+        'To complete account registration. You need to click the button below to authenticate your email'
       )
       await transporter.sendMail({
         from: process.env.EMAIL, // sender address
         to: email, // list of receivers
-        subject: 'XÁC THỰC EMAIL', // Subject line
+        subject: 'EMAIL VERIFY', // Subject line
         html // html body
       })
       return {
-        message: 'Chúng tôi đã gửi email xác nhận về cho bạn. Vui lòng kiểm tra hộp thư để hoàn tất đăng ký',
-        status: 201
+        message: 'We have sent you a confirmation email. Please check your email to complete your registration',
+        status: HTTP_STATUS.CREATED
       }
     }
   },
   handleVerifyUser: async (username: string) => {
     const user = new User()
-    const sql = 'UPDATE `users` SET verify=? WHERE username=?'
+    const sql = 'UPDATE users SET verify=? WHERE username=?'
     const values = ['true', username]
     await user.update(sql, values)
-    return { message: 'Xác thực tài khoản thành công' }
+    return { message: USER_MESSAGES.VERIFY_USER_SUCCESSFULLY }
   },
-  handleLogin: async (userData: LoginData) => {
-    const { email, password } = userData
-    const md5Password = md5(password)
+  handleLogin: async (userData: UserType) => {
+    const accessToken = userService.generateAccessToken(Number(userData.id), '300s')
+    const refreshToken = userService.generateRefreshToken(Number(userData.id), '365d')
     const user = new User()
-    const sql = 'SELECT * FROM `users` WHERE email=? AND password=?'
-    const values = [email, md5Password]
-    const result = await user.find(sql, values)
-    if (result.length > 0) {
-      const accessToken = userService.generateAccessToken(result[0].id, '300s')
-      const refreshToken = userService.generateRefreshToken(result[0].id, '365d')
-      const sql = 'UPDATE `users` SET token=? WHERE id=?'
-      const values = [refreshToken, result[0].id]
-      await user.update(sql, values)
-      return { message: 'Đăng nhập thành công', status: 200, accessToken, refreshToken }
-    } else {
-      return { message: 'Sai thông tin đăng nhập!', status: 404 }
-    }
+    const sql = 'UPDATE users SET token=? WHERE id=?'
+    const values = [refreshToken, Number(userData.id)]
+    await user.update(sql, values)
+    return { message: USER_MESSAGES.LOGIN_SUCCESSFULLY, accessToken, refreshToken }
   },
   handleGetUser: async (userId: string) => {
     const user = new User()

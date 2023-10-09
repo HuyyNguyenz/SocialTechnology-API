@@ -1,14 +1,14 @@
 import connectDb from '../utils/connectDb'
 
 class User {
-  username?: string
-  email?: string
-  password?: string
-  firstName?: string
-  lastName?: string
-  birthDay?: string
-  gender?: string
-  createdAt?: string
+  private username?: string
+  private email?: string
+  private password?: string
+  private firstName?: string
+  private lastName?: string
+  private birthDay?: string
+  private gender?: string
+  private createdAt?: string
   constructor(
     username?: string,
     email?: string,

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { UserType, LoginData } from '../types/userType'
+import { UserType } from '../types/userType'
 import userService from '../services/userService'
 import postService from '../services/postService'
 import commentService from '../services/commentService'
@@ -9,30 +9,28 @@ import notifyService from '../services/notifyService'
 import messageService from '../services/messageService'
 import axios from 'axios'
 import { ParamsDictionary } from 'express-serve-static-core'
+import { VerifyReqBody } from '~/requestTypes'
 
 const userController = {
-  verifyUser: async (req: Request, res: Response) => {
-    const { username } = req.params
+  verifyUser: async (req: Request<ParamsDictionary, any, VerifyReqBody>, res: Response) => {
+    const { username } = req.body
     if (username) {
       const result = await userService.handleVerifyUser(username)
-      res.status(200).json(result)
+      res.json(result)
     }
   },
   registerUser: async (req: Request<ParamsDictionary, any, UserType>, res: Response) => {
     const userData = req.body
     if (userData) {
-      // const result = await userService.handleRegister(userData)
-      // res.status(result.status).json(result)
-      return res.json({
-        userData
-      })
+      const result = await userService.handleRegister(userData)
+      return res.status(result.status).json(result)
     }
   },
   loginUser: async (req: Request, res: Response) => {
-    const userData: LoginData = req.body
-    if (userData) {
-      const result = await userService.handleLogin(userData)
-      res.status(result.status).json(result)
+    const user = req.user as UserType
+    if (user) {
+      const result = await userService.handleLogin(user)
+      res.json(result)
     }
   },
   getUser: async (req: Request, res: Response) => {

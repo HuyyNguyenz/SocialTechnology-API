@@ -17,11 +17,6 @@ export interface UserType {
   isOnline?: string
 }
 
-export interface LoginData {
-  email: string
-  password: string
-}
-
 export enum Gender {
   MALE = 'male',
   FEMALE = 'female'

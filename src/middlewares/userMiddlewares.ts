@@ -1,19 +1,27 @@
+import { NextFunction, Request, Response } from 'express'
 import { checkSchema } from 'express-validator'
+import md5 from 'md5'
+import HTTP_STATUS from '~/constants/httpStatus'
 import { USER_MESSAGES } from '~/constants/messages'
-import { Gender } from '~/types/userType'
+import ErrorWithStatus from '~/models/Error'
+import User from '~/models/User'
+import { Gender, UserType } from '~/types/userType'
 import validate from '~/utils/validation'
+
+const emailSchema = {
+  isEmail: true,
+  trim: true,
+  errorMessage: USER_MESSAGES.EMAIL_IS_NOT_VALID
+}
 
 export const registerValidator = validate(
   checkSchema(
     {
-      email: {
-        isEmail: true,
-        trim: true,
-        errorMessage: USER_MESSAGES.EMAIL_IS_NOT_VALID
-      },
+      email: emailSchema,
       password: {
-        isEmpty: false,
-        errorMessage: USER_MESSAGES.PASSWORD_IS_NOT_EMPTY,
+        notEmpty: {
+          errorMessage: USER_MESSAGES.PASSWORD_IS_NOT_EMPTY
+        },
         isStrongPassword: {
           options: {
             minLength: 6,
@@ -33,18 +41,23 @@ export const registerValidator = validate(
         }
       },
       firstName: {
-        isString: true,
-        trim: true,
-        errorMessage: USER_MESSAGES.FIRST_NAME_MUST_BE_STRING
+        notEmpty: { errorMessage: USER_MESSAGES.FIRST_NAME_IS_NOT_EMPTY },
+        isString: {
+          errorMessage: USER_MESSAGES.FIRST_NAME_MUST_BE_STRING
+        },
+        trim: true
       },
       lastName: {
-        isString: true,
-        trim: true,
-        errorMessage: USER_MESSAGES.LAST_NAME_MUST_BE_STRING
+        notEmpty: { errorMessage: USER_MESSAGES.LAST_NAME_IS_NOT_EMPTY },
+        isString: {
+          errorMessage: USER_MESSAGES.LAST_NAME_MUST_BE_STRING
+        },
+        trim: true
       },
       birthDay: {
-        isEmpty: false,
-        errorMessage: USER_MESSAGES.BIRTHDAY_IS_NOT_EMPTY,
+        notEmpty: {
+          errorMessage: USER_MESSAGES.BIRTHDAY_IS_NOT_EMPTY
+        },
         isDate: {
           options: {
             format: 'DD/MM/YYYY'
@@ -53,8 +66,9 @@ export const registerValidator = validate(
         }
       },
       createdAt: {
-        isEmpty: false,
-        errorMessage: USER_MESSAGES.CREATED_AT_IS_NOT_EMPTY,
+        notEmpty: {
+          errorMessage: USER_MESSAGES.CREATED_AT_IS_NOT_EMPTY
+        },
         isDate: {
           options: {
             format: 'DD/MM/YYYY'
@@ -63,8 +77,11 @@ export const registerValidator = validate(
         }
       },
       gender: {
+        notEmpty: {
+          errorMessage: USER_MESSAGES.GENDER_IS_NOT_EMPTY
+        },
         custom: {
-          options: (value, { req }) => {
+          options: (value: Gender, { req }) => {
             if (![Gender.MALE, Gender.FEMALE].includes(value)) {
               throw new Error(USER_MESSAGES.GENDER_IS_NOT_VALID)
             }
@@ -76,3 +93,74 @@ export const registerValidator = validate(
     ['body']
   )
 )
+
+export const usernameValidator = validate(
+  checkSchema(
+    {
+      username: {
+        trim: true,
+        custom: {
+          options: async (value: string, { req }) => {
+            if (value === '') {
+              throw new ErrorWithStatus({
+                message: USER_MESSAGES.USERNAME_IS_NOT_EMPTY,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+            const user = new User()
+            const sql = 'SELECT * FROM users WHERE username=?'
+            const [usernameExists] = await user.find(sql, [value])
+            if (!usernameExists) {
+              throw new ErrorWithStatus({ message: USER_MESSAGES.USERNAME_NOT_FOUND, status: HTTP_STATUS.NOT_FOUND })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const loginValidator = validate(
+  checkSchema(
+    {
+      email: {
+        ...emailSchema,
+        custom: {
+          options: async (value: string, { req }) => {
+            const user = new User()
+            const hashPassword = md5(req.body.password)
+            const sql = 'SELECT * FROM users WHERE email=? AND password=?'
+            const values = [value, hashPassword]
+            const [userData] = await user.find(sql, values)
+            if (!userData) {
+              throw new ErrorWithStatus({
+                message: USER_MESSAGES.EMAIL_OR_PASSWORD_INCORRECT,
+                status: HTTP_STATUS.NOT_FOUND
+              })
+            }
+            ;(req as Request).user = userData
+            return true
+          }
+        }
+      },
+      password: {
+        notEmpty: {
+          errorMessage: USER_MESSAGES.PASSWORD_IS_NOT_EMPTY
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const verifiedUser = (req: Request, res: Response, next: NextFunction) => {
+  const user = req.user as UserType
+  if (user && user.verify === 'true') {
+    return next()
+  }
+  return res.status(HTTP_STATUS.FORBIDDEN).json({
+    message: USER_MESSAGES.EMAIL_NOT_VERIFY
+  })
+}
