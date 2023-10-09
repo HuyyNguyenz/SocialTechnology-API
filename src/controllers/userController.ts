@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { UserType } from '../types/userType'
+import { TokenPayload, UserType } from '../types/userType'
 import userService from '../services/userService'
 import postService from '../services/postService'
 import commentService from '../services/commentService'
@@ -61,12 +61,10 @@ const userController = {
       })
     res.status(200).json(result)
   },
-  requestRefreshToken: async (req: Request, res: Response) => {
-    const { refreshToken } = req.body
-    if (refreshToken) {
-      const result = await userService.handleRefreshToken(refreshToken)
-      res.status(result.status).json(result)
-    }
+  refreshToken: async (req: Request, res: Response) => {
+    const { id, exp } = req.decodedRefreshToken as TokenPayload
+    const result = await userService.handleRefreshToken({ userId: id, exp })
+    res.json(result)
   },
   searchUser: async (req: Request, res: Response) => {
     const { searchValue } = req.body

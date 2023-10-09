@@ -1,6 +1,12 @@
 import { Router } from 'express'
 import userController from '~/controllers/userController'
-import { loginValidator, registerValidator, usernameValidator, verifiedUser } from '~/middlewares/userMiddlewares'
+import {
+  loginValidator,
+  refreshTokenValidator,
+  registerValidator,
+  usernameValidator,
+  verifiedUser
+} from '~/middlewares/userMiddlewares'
 import verifyEmail from '~/middlewares/verifyEmail'
 import verifyOtp from '~/middlewares/verifyOtp'
 import verifyToken from '~/middlewares/verifyToken'
@@ -8,9 +14,9 @@ import verifyToken from '~/middlewares/verifyToken'
 const userRouter = Router()
 
 userRouter.post('/register', registerValidator, userController.registerUser)
-userRouter.put('/verify-user', usernameValidator, userController.verifyUser)
+userRouter.post('/verify-user', usernameValidator, userController.verifyUser)
 userRouter.post('/login', loginValidator, verifiedUser, userController.loginUser)
-userRouter.post('/refresh', userController.requestRefreshToken)
+userRouter.post('/refresh-token', refreshTokenValidator, userController.refreshToken)
 userRouter.post('/verifyEmail', verifyEmail, userController.sendOtpFromMail)
 userRouter.post('/verifyOtp', verifyOtp, userController.permitRecoveryPassword)
 userRouter.put('/recovery/:email', userController.recoveryPassword)

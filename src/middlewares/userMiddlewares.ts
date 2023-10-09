@@ -5,9 +5,12 @@ import HTTP_STATUS from '~/constants/httpStatus'
 import { USER_MESSAGES } from '~/constants/messages'
 import ErrorWithStatus from '~/models/Error'
 import User from '~/models/User'
-import { Gender, UserType } from '~/types/userType'
+import { Gender, TokenPayload, UserType } from '~/types/userType'
 import validate from '~/utils/validation'
+import jwt from 'jsonwebtoken'
+import { config } from 'dotenv'
 
+config()
 const emailSchema = {
   isEmail: true,
   trim: true,
@@ -164,3 +167,39 @@ export const verifiedUser = (req: Request, res: Response, next: NextFunction) =>
     message: USER_MESSAGES.EMAIL_NOT_VERIFY
   })
 }
+
+export const refreshTokenValidator = validate(
+  checkSchema(
+    {
+      refreshToken: {
+        notEmpty: {
+          errorMessage: USER_MESSAGES.REFRESH_TOKEN_IS_NOT_EMPTY
+        },
+        custom: {
+          options: async (value: string, { req }) => {
+            const user = new User()
+            const sql = 'SELECT * FROM users WHERE token=?'
+            const userData = await user.find(sql, [value])
+            if (!userData) {
+              throw new ErrorWithStatus({
+                message: USER_MESSAGES.REFRESH_TOKEN_IS_NOT_EXISTS,
+                status: HTTP_STATUS.NOT_FOUND
+              })
+            }
+            try {
+              const decodedRefreshToken = jwt.verify(value, process.env.REFRESH_TOKEN_KEY as string)
+              ;(req as Request).decodedRefreshToken = decodedRefreshToken as TokenPayload
+            } catch (error) {
+              throw new ErrorWithStatus({
+                message: USER_MESSAGES.REFRESH_TOKEN_IS_NOT_CORRECT,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)

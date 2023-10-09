@@ -20,5 +20,9 @@ export const USER_MESSAGES = {
   EMAIL_OR_PASSWORD_INCORRECT: 'Email or password incorrect',
   LOGIN_SUCCESSFULLY: 'Login successfully',
   VERIFY_USER_SUCCESSFULLY: 'Verify user successfully',
-  EMAIL_NOT_VERIFY: 'Email not verify'
+  EMAIL_NOT_VERIFY: 'Email not verify',
+  REFRESH_TOKEN_IS_NOT_EMPTY: 'Refresh token is not empty',
+  REFRESH_TOKEN_IS_NOT_EXISTS: 'Refresh token is not exists',
+  REFRESH_TOKEN_IS_NOT_CORRECT: 'Refresh token is not correct',
+  REFRESH_TOKEN_SUCCESSFULLY: 'Refresh token successfully'
 } as const

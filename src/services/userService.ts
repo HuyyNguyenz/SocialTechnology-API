@@ -1,6 +1,5 @@
 import md5 from 'md5'
 import jwt from 'jsonwebtoken'
-import jwt_decode from 'jwt-decode'
 import nodemailer from 'nodemailer'
 import otpGenerator from 'otp-generator'
 import User from '../models/User'
@@ -12,8 +11,8 @@ import { config } from 'dotenv'
 
 config()
 
-const userService = {
-  generateAccessToken: (userId: number, expiresIn: string) => {
+class UserService {
+  generateAccessToken = (userId: number, expiresIn: string) => {
     return jwt.sign(
       {
         id: userId
@@ -21,8 +20,8 @@ const userService = {
       process.env.ACCESS_TOKEN_KEY as string,
       { expiresIn }
     )
-  },
-  generateRefreshToken: (userId: number, expiresIn: string) => {
+  }
+  generateRefreshToken = (userId: number, expiresIn: string) => {
     return jwt.sign(
       {
         id: userId
@@ -30,8 +29,8 @@ const userService = {
       process.env.REFRESH_TOKEN_KEY as string,
       { expiresIn }
     )
-  },
-  handleRegister: async (userData: UserType): Promise<{ message: string; status: number }> => {
+  }
+  handleRegister = async (userData: UserType): Promise<{ message: string; status: number }> => {
     const { email, password, firstName, lastName, birthDay, gender, createdAt } = userData
     const username = email.split('@')[0] + birthDay.split('/')[0] + birthDay.split('/')[1]
     const md5Password = md5(password)
@@ -67,24 +66,24 @@ const userService = {
         status: HTTP_STATUS.CREATED
       }
     }
-  },
-  handleVerifyUser: async (username: string) => {
+  }
+  handleVerifyUser = async (username: string) => {
     const user = new User()
     const sql = 'UPDATE users SET verify=? WHERE username=?'
     const values = ['true', username]
     await user.update(sql, values)
     return { message: USER_MESSAGES.VERIFY_USER_SUCCESSFULLY }
-  },
-  handleLogin: async (userData: UserType) => {
-    const accessToken = userService.generateAccessToken(Number(userData.id), '300s')
-    const refreshToken = userService.generateRefreshToken(Number(userData.id), '365d')
+  }
+  handleLogin = async (userData: UserType) => {
+    const accessToken = this.generateAccessToken(Number(userData.id), '300s')
+    const refreshToken = this.generateRefreshToken(Number(userData.id), '365d')
     const user = new User()
     const sql = 'UPDATE users SET token=? WHERE id=?'
     const values = [refreshToken, Number(userData.id)]
     await user.update(sql, values)
     return { message: USER_MESSAGES.LOGIN_SUCCESSFULLY, accessToken, refreshToken }
-  },
-  handleGetUser: async (userId: string) => {
+  }
+  handleGetUser = async (userId: string) => {
     const user = new User()
     const sql = 'SELECT * FROM `users` WHERE id=? OR username=? OR token=?'
     const values = [userId, userId, userId]
@@ -95,8 +94,8 @@ const userService = {
     } else {
       return { message: 'Không tìm thấy', status: 404 }
     }
-  },
-  handleGetAllUser: async () => {
+  }
+  handleGetAllUser = async () => {
     const user = new User()
     const result: UserType[] = await user.getAll()
     const userArray: any[] = []
@@ -105,29 +104,17 @@ const userService = {
       userArray.push(data)
     })
     return userArray
-  },
-  handleRefreshToken: async (refreshToken: string) => {
-    const decodeToken: any = jwt_decode(refreshToken)
-    if (decodeToken.id) {
-      const user = new User()
-      const sql = 'SELECT * FROM `users` WHERE id=? AND token=?'
-      const values = [decodeToken.id, refreshToken]
-      const result = await user.find(sql, values)
-      if (result.length > 0) {
-        const accessToken = userService.generateAccessToken(decodeToken.id, '300s')
-        const refreshToken = userService.generateRefreshToken(decodeToken.id, '365d')
-        const sql = 'UPDATE `users` SET token=? WHERE id=?'
-        const values = [refreshToken, decodeToken.id]
-        await user.update(sql, values)
-        return { message: 'Refresh Token Successfully', status: 200, accessToken, refreshToken }
-      } else {
-        return { message: 'Token is not valid', status: 403 }
-      }
-    } else {
-      return { message: "You're not authenticated", status: 401 }
-    }
-  },
-  handleSearch: async (searchValue: string) => {
+  }
+  handleRefreshToken = async ({ userId, exp }: { userId: number; exp: number }) => {
+    const user = new User()
+    const accessToken = userService.generateAccessToken(userId, '300s')
+    const refreshToken = userService.generateRefreshToken(userId, exp + '')
+    const sql = 'UPDATE users SET token=? WHERE id=?'
+    const values = [refreshToken, userId]
+    await user.update(sql, values)
+    return { message: USER_MESSAGES.REFRESH_TOKEN_SUCCESSFULLY, accessToken, refreshToken }
+  }
+  handleSearch = async (searchValue: string) => {
     const user = new User()
     const sql = `SELECT * FROM users WHERE firstName COLLATE utf8_general_ci like '%${searchValue}%' OR lastName COLLATE utf8_general_ci like '%${searchValue}%'`
     const values = [searchValue, searchValue]
@@ -140,8 +127,8 @@ const userService = {
       const resultFullText = await user.find(sql, values)
       return resultFullText
     }
-  },
-  handleSendOtp: async (userEmail: string) => {
+  }
+  handleSendOtp = async (userEmail: string) => {
     const otpCode = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false })
     const user = new User()
     const sql = 'UPDATE `users` SET otpCode=? WHERE email=?'
@@ -169,8 +156,8 @@ const userService = {
     } catch (error) {
       return { error, status: 500 }
     }
-  },
-  handleResetPassword: async (password: string, email: string) => {
+  }
+  handleResetPassword = async (password: string, email: string) => {
     const md5Password = md5(password)
     const user = new User()
     const sql = 'UPDATE `users` SET password=?,otpCode=null WHERE email=?'
@@ -181,8 +168,8 @@ const userService = {
     } catch (error) {
       return { error, status: 500 }
     }
-  },
-  handleUpdateProfile: async (id: number, data: UserType) => {
+  }
+  handleUpdateProfile = async (id: number, data: UserType) => {
     const user = new User()
     const { firstName, lastName, birthDay, gender, avatar, backgroundImage } = data
     const sql = 'UPDATE `users` SET firstName=?,lastName=?,birthDay=?,gender=?,avatar=?,backgroundImage=? WHERE id=?'
@@ -191,19 +178,19 @@ const userService = {
     const values = [firstName, lastName, birthDay, gender, avatarString, backgroundImageString, id]
     await user.update(sql, values)
     return { message: 'Cập nhật thành công' }
-  },
-  handleUpdateSocketId: async (id: number, socketId: string) => {
+  }
+  handleUpdateSocketId = async (id: number, socketId: string) => {
     const user = new User()
     const sql = 'UPDATE users SET socketId=? WHERE id=?'
     const values = [socketId, id]
     await user.update(sql, values)
     return { message: 'Cập nhật socketId thành công' }
-  },
-  handleUpdateUserState: async (id: number, state: string) => {
+  }
+  handleUpdateUserState = async (id: number, state: string) => {
     const user = new User()
     await user.update('UPDATE users SET isOnline=? WHERE id=?', [state, id])
     return { message: 'Cập nhật trạng thái thành công' }
   }
 }
-
+const userService = new UserService()
 export default userService

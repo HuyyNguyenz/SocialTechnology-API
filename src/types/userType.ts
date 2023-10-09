@@ -21,3 +21,9 @@ export enum Gender {
   MALE = 'male',
   FEMALE = 'female'
 }
+
+export interface TokenPayload {
+  id: number
+  iat: number
+  exp: number
+}
