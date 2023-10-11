@@ -19,18 +19,18 @@ export const emailGen = (
   const email = {
     body: {
       name: username,
-      intro: intro ? intro : 'Xin vui lòng không chia sẻ mã này cho bất cứ ai!',
+      intro: intro ? intro : 'Please do not share this code with anyone!',
       action: {
         instructions: instructions
           ? instructions
-          : 'Để tiếp tục khôi phục mật khẩu. Bạn cần nhập mã này vào trang khôi phục mật khẩu',
+          : 'To continue password recovery. You need to enter this code on the password recovery page',
         button: {
           color: '#9F18F2', // Optional action button color
           text: value,
           link
         }
       },
-      outro: 'Mọi ý kiến thắc mắc. Xin vui lòng phản hồi lại email này'
+      outro: 'Any comments or questions. Please respond to this email'
     }
   }
   const emailBody = mailGenerator.generate(email)

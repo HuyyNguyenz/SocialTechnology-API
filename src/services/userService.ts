@@ -10,7 +10,6 @@ import HTTP_STATUS from '~/constants/httpStatus'
 import { config } from 'dotenv'
 
 config()
-
 class UserService {
   generateAccessToken = (userId: number, expiresIn: string) => {
     return jwt.sign(
@@ -128,14 +127,12 @@ class UserService {
       return resultFullText
     }
   }
-  handleSendOtp = async (userEmail: string) => {
+  handleSendOtp = async (email: string, userData: UserType) => {
     const otpCode = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false })
     const user = new User()
-    const sql = 'UPDATE `users` SET otpCode=? WHERE email=?'
-    const foundUser: UserType[] = await user.find('SELECT * FROM users WHERE email=?', [userEmail])
-    const values = [otpCode, userEmail]
+    const sql = 'UPDATE users SET otpCode=? WHERE email=?'
+    const values = [otpCode, email]
     await user.update(sql, values)
-
     const config = {
       service: 'gmail',
       auth: {
@@ -144,30 +141,22 @@ class UserService {
       }
     }
     const transporter = nodemailer.createTransport(config)
-    const html = emailGen(foundUser[0].lastName, 'Social Technology', 'http://127.0.0.1:3000/', otpCode)
-    try {
-      await transporter.sendMail({
-        from: process.env.EMAIL, // sender address
-        to: userEmail, // list of receivers
-        subject: 'KHÔI PHỤC MẬT KHẨU', // Subject line
-        html // html body
-      })
-      return { message: 'Đã gửi mã xác nhận qua email. Vui lòng kiểm tra email của bạn', status: 201 }
-    } catch (error) {
-      return { error, status: 500 }
-    }
+    const html = emailGen(userData.lastName, 'Social Technology', 'http://127.0.0.1:3000/', otpCode)
+    await transporter.sendMail({
+      from: process.env.EMAIL, // sender address
+      to: email, // list of receivers
+      subject: 'RECOVERY PASSWORD', // Subject line
+      html // html body
+    })
+    return { message: 'Otp code sent to email. Please check your email' }
   }
-  handleResetPassword = async (password: string, email: string) => {
-    const md5Password = md5(password)
+  handleUpdatePassword = async (password: string, email: string) => {
+    const hashPassword = md5(password)
     const user = new User()
-    const sql = 'UPDATE `users` SET password=?,otpCode=null WHERE email=?'
-    const values = [md5Password, email]
-    try {
-      await user.update(sql, values)
-      return { message: 'Cập nhật mật khẩu thành công', status: 200 }
-    } catch (error) {
-      return { error, status: 500 }
-    }
+    const sql = 'UPDATE users SET password=?,otpCode=null WHERE email=?'
+    const values = [hashPassword, email]
+    await user.update(sql, values)
+    return { message: USER_MESSAGES.UPDATE_PASSWORD_SUCCESSFULLY }
   }
   handleUpdateProfile = async (id: number, data: UserType) => {
     const user = new User()

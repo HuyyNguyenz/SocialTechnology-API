@@ -16,33 +16,34 @@ const emailSchema = {
   trim: true,
   errorMessage: USER_MESSAGES.EMAIL_IS_NOT_VALID
 }
+const passwordSchema = {
+  notEmpty: {
+    errorMessage: USER_MESSAGES.PASSWORD_IS_NOT_EMPTY
+  },
+  isStrongPassword: {
+    options: {
+      minLength: 6,
+      minLowercase: 1,
+      minUppercase: 1,
+      minSymbols: 1,
+      minNumbers: 1
+    },
+    errorMessage: USER_MESSAGES.PASSWORD_MUST_BE_STRONG
+  },
+  isLength: {
+    options: {
+      min: 6,
+      max: 32
+    },
+    errorMessage: USER_MESSAGES.PASSWORD_MUST_BE_STRONG
+  }
+}
 
 export const registerValidator = validate(
   checkSchema(
     {
       email: emailSchema,
-      password: {
-        notEmpty: {
-          errorMessage: USER_MESSAGES.PASSWORD_IS_NOT_EMPTY
-        },
-        isStrongPassword: {
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minSymbols: 1,
-            minNumbers: 1
-          },
-          errorMessage: USER_MESSAGES.PASSWORD_MUST_BE_STRONG
-        },
-        isLength: {
-          options: {
-            min: 6,
-            max: 32
-          },
-          errorMessage: USER_MESSAGES.PASSWORD_MUST_BE_STRONG
-        }
-      },
+      password: passwordSchema,
       firstName: {
         notEmpty: { errorMessage: USER_MESSAGES.FIRST_NAME_IS_NOT_EMPTY },
         isString: {
@@ -199,6 +200,67 @@ export const refreshTokenValidator = validate(
           }
         }
       }
+    },
+    ['body']
+  )
+)
+
+export const verifyEmailValidator = validate(
+  checkSchema(
+    {
+      email: {
+        ...emailSchema,
+        custom: {
+          options: async (value: string, { req }) => {
+            const user = new User()
+            const sql = 'SELECT * FROM users WHERE email=?'
+            const [userData] = await user.find(sql, [value])
+            if (!userData) {
+              throw new ErrorWithStatus({ message: USER_MESSAGES.EMAIL_NOT_FOUND, status: HTTP_STATUS.NOT_FOUND })
+            }
+            ;(req as Request).user = userData
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const verifyOtpValidator = validate(
+  checkSchema(
+    {
+      otpCode: {
+        notEmpty: {
+          errorMessage: USER_MESSAGES.OTP_CODE_IS_NOT_EMPTY
+        },
+        custom: {
+          options: async (value: string, { req }) => {
+            const user = new User()
+            const sql = 'SELECT * FROM users WHERE otpCode=? AND email=?'
+            const values = [value, req.body.email]
+            const [userData] = await user.find(sql, values)
+            if (!userData) {
+              throw new ErrorWithStatus({
+                message: USER_MESSAGES.OTP_CODE_IS_NOT_CORRECT,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+            ;(req as Request).user = userData
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const recoveryPasswordValidator = validate(
+  checkSchema(
+    {
+      password: passwordSchema
     },
     ['body']
   )

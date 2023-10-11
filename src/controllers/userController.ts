@@ -9,7 +9,7 @@ import notifyService from '../services/notifyService'
 import messageService from '../services/messageService'
 import axios from 'axios'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { VerifyReqBody } from '~/requestTypes'
+import { RecoveryPasswordReqBody, RecoveryPasswordReqParam, VerifyEmailReqBody, VerifyReqBody } from '~/requestTypes'
 
 const userController = {
   verifyUser: async (req: Request<ParamsDictionary, any, VerifyReqBody>, res: Response) => {
@@ -84,23 +84,26 @@ const userController = {
       res.status(200).json(result)
     }
   },
-  sendOtpFromMail: async (req: Request, res: Response) => {
-    const { userEmail } = req.headers
-    if (userEmail) {
-      const result = await userService.handleSendOtp(userEmail as string)
-      res.status(result.status).json(result)
+  sendOtpFromMail: async (req: Request<ParamsDictionary, any, VerifyEmailReqBody>, res: Response) => {
+    const { email } = req.body
+    const userData = req.user as UserType
+    console.log('userData:', userData)
+
+    if (email && userData) {
+      const result = await userService.handleSendOtp(email, userData)
+      res.json(result)
     }
   },
   permitRecoveryPassword: async (req: Request, res: Response) => {
-    const userOtp = JSON.parse(req.headers.userOtp as string)
-    res.status(200).json({ userOtp })
+    const userOtp = (req.user as UserType).otpCode as string
+    return res.json({ userOtp })
   },
-  recoveryPassword: async (req: Request, res: Response) => {
+  recoveryPassword: async (req: Request<RecoveryPasswordReqParam, any, RecoveryPasswordReqBody>, res: Response) => {
     const { email } = req.params
     const { password } = req.body
     if (email && password) {
-      const result = await userService.handleResetPassword(password, email)
-      res.status(result.status).json(result)
+      const result = await userService.handleUpdatePassword(password, email)
+      res.json(result)
     }
   },
   updateUserProfile: async (req: Request, res: Response) => {

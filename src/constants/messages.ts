@@ -1,6 +1,9 @@
 export const USER_MESSAGES = {
   EMAIL_IS_NOT_VALID: 'Email is not valid',
   EMAIL_IS_ALREADY_EXISTS: 'Email is already exists',
+  EMAIL_OR_PASSWORD_INCORRECT: 'Email or password incorrect',
+  EMAIL_NOT_VERIFY: 'Email not verify',
+  EMAIL_NOT_FOUND: 'Email not found',
   PASSWORD_IS_NOT_EMPTY: 'Password is not empty',
   PASSWORD_MUST_BE_STRONG:
     'Password must be 6-32 characters long and contain at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol',
@@ -17,12 +20,13 @@ export const USER_MESSAGES = {
   USERNAME_IS_NOT_EMPTY: 'Username is not empty',
   USERNAME_MUST_BE_STRING: 'Username must be string',
   USERNAME_NOT_FOUND: 'Username not found',
-  EMAIL_OR_PASSWORD_INCORRECT: 'Email or password incorrect',
   LOGIN_SUCCESSFULLY: 'Login successfully',
   VERIFY_USER_SUCCESSFULLY: 'Verify user successfully',
-  EMAIL_NOT_VERIFY: 'Email not verify',
   REFRESH_TOKEN_IS_NOT_EMPTY: 'Refresh token is not empty',
   REFRESH_TOKEN_IS_NOT_EXISTS: 'Refresh token is not exists',
   REFRESH_TOKEN_IS_NOT_CORRECT: 'Refresh token is not correct',
-  REFRESH_TOKEN_SUCCESSFULLY: 'Refresh token successfully'
+  REFRESH_TOKEN_SUCCESSFULLY: 'Refresh token successfully',
+  OTP_CODE_IS_NOT_EMPTY: 'Otp code is not empty',
+  OTP_CODE_IS_NOT_CORRECT: 'Otp code is not correct',
+  UPDATE_PASSWORD_SUCCESSFULLY: 'Update password successfully'
 } as const
