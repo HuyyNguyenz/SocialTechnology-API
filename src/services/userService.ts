@@ -1,5 +1,4 @@
 import md5 from 'md5'
-import jwt from 'jsonwebtoken'
 import nodemailer from 'nodemailer'
 import otpGenerator from 'otp-generator'
 import User from '../models/User'
@@ -8,26 +7,31 @@ import { emailGen } from '../utils/email'
 import { USER_MESSAGES } from '~/constants/messages'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { config } from 'dotenv'
+import { signToken } from '~/utils/jwt'
 
 config()
 class UserService {
-  generateAccessToken = (userId: number, expiresIn: string) => {
-    return jwt.sign(
-      {
-        id: userId
+  private generateAccessToken = (userId: number, expiresIn: string) => {
+    return signToken({
+      payload: {
+        userId
       },
-      process.env.ACCESS_TOKEN_KEY as string,
-      { expiresIn }
-    )
+      privateKey: process.env.ACCESS_TOKEN_KEY as string,
+      options: {
+        expiresIn
+      }
+    })
   }
-  generateRefreshToken = (userId: number, expiresIn: string) => {
-    return jwt.sign(
-      {
-        id: userId
+  private generateRefreshToken = (userId: number, expiresIn: string) => {
+    return signToken({
+      payload: {
+        userId
       },
-      process.env.REFRESH_TOKEN_KEY as string,
-      { expiresIn }
-    )
+      privateKey: process.env.REFRESH_TOKEN_KEY as string,
+      options: {
+        expiresIn
+      }
+    })
   }
   handleRegister = async (userData: UserType): Promise<{ message: string; status: number }> => {
     const { email, password, firstName, lastName, birthDay, gender, createdAt } = userData
@@ -74,8 +78,10 @@ class UserService {
     return { message: USER_MESSAGES.VERIFY_USER_SUCCESSFULLY }
   }
   handleLogin = async (userData: UserType) => {
-    const accessToken = this.generateAccessToken(Number(userData.id), '300s')
-    const refreshToken = this.generateRefreshToken(Number(userData.id), '365d')
+    const [accessToken, refreshToken] = await Promise.all([
+      this.generateAccessToken(Number(userData.id), '300s'),
+      this.generateRefreshToken(Number(userData.id), '365d')
+    ])
     const user = new User()
     const sql = 'UPDATE users SET token=? WHERE id=?'
     const values = [refreshToken, Number(userData.id)]
@@ -106,23 +112,26 @@ class UserService {
   }
   handleRefreshToken = async ({ userId, exp }: { userId: number; exp: number }) => {
     const user = new User()
-    const accessToken = userService.generateAccessToken(userId, '300s')
-    const refreshToken = userService.generateRefreshToken(userId, exp + '')
+    const [accessToken, refreshToken] = await Promise.all([
+      this.generateAccessToken(userId, '300s'),
+      this.generateRefreshToken(userId, exp + '')
+    ])
     const sql = 'UPDATE users SET token=? WHERE id=?'
     const values = [refreshToken, userId]
     await user.update(sql, values)
     return { message: USER_MESSAGES.REFRESH_TOKEN_SUCCESSFULLY, accessToken, refreshToken }
   }
-  handleSearch = async (searchValue: string) => {
+  handleSearch = async ({ value, limit, page }: { value: string; limit: number; page: number }) => {
     const user = new User()
-    const sql = `SELECT * FROM users WHERE firstName COLLATE utf8_general_ci like '%${searchValue}%' OR lastName COLLATE utf8_general_ci like '%${searchValue}%'`
-    const values = [searchValue, searchValue]
+    const sql =
+      "SELECT * FROM users WHERE firstName COLLATE utf8_general_ci like '%?%' OR lastName COLLATE utf8_general_ci like '%?%'"
+    const values = [value, value]
     const result = await user.find(sql, values)
     if (result.length > 0) {
       return result
     } else {
       const sql = 'SELECT * FROM users WHERE MATCH(firstName,lastName) AGAINST(?)'
-      const values = [searchValue]
+      const values = [value]
       const resultFullText = await user.find(sql, values)
       return resultFullText
     }

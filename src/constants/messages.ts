@@ -28,5 +28,7 @@ export const USER_MESSAGES = {
   REFRESH_TOKEN_SUCCESSFULLY: 'Refresh token successfully',
   OTP_CODE_IS_NOT_EMPTY: 'Otp code is not empty',
   OTP_CODE_IS_NOT_CORRECT: 'Otp code is not correct',
-  UPDATE_PASSWORD_SUCCESSFULLY: 'Update password successfully'
+  UPDATE_PASSWORD_SUCCESSFULLY: 'Update password successfully',
+  ACCESS_TOKEN_IS_REQUIRED: 'Access token is required',
+  ACCESS_TOKEN_IS_NOT_CORRECT: 'Access token is not correct'
 } as const

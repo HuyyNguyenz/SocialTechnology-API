@@ -9,7 +9,13 @@ import notifyService from '../services/notifyService'
 import messageService from '../services/messageService'
 import axios from 'axios'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { RecoveryPasswordReqBody, RecoveryPasswordReqParam, VerifyEmailReqBody, VerifyReqBody } from '~/requestTypes'
+import {
+  RecoveryPasswordReqBody,
+  RecoveryPasswordReqParam,
+  SearchReqQuery,
+  VerifyEmailReqBody,
+  VerifyReqBody
+} from '~/requestTypes'
 
 const userController = {
   verifyUser: async (req: Request<ParamsDictionary, any, VerifyReqBody>, res: Response) => {
@@ -62,27 +68,25 @@ const userController = {
     res.status(200).json(result)
   },
   refreshToken: async (req: Request, res: Response) => {
-    const { id, exp } = req.decodedRefreshToken as TokenPayload
-    const result = await userService.handleRefreshToken({ userId: id, exp })
-    res.json(result)
+    const { userId, exp } = req.decodedRefreshToken as TokenPayload
+    const result = await userService.handleRefreshToken({ userId, exp })
+    return res.json(result)
   },
-  searchUser: async (req: Request, res: Response) => {
-    const { searchValue } = req.body
-    if (searchValue) {
-      const result = await userService.handleSearch(searchValue)
-      result.length > 0 &&
-        Array.from(result).forEach((user: any) => {
-          if (user.avatar !== '') {
-            const avatar = JSON.parse(user.avatar)
-            user.avatar = avatar
-          }
-          if (user.backgroundImage !== '') {
-            const backgroundImage = JSON.parse(user.backgroundImage)
-            user.backgroundImage = backgroundImage
-          }
-        })
-      res.status(200).json(result)
-    }
+  searchUser: async (req: Request<ParamsDictionary, any, any, SearchReqQuery>, res: Response) => {
+    const { value, limit, page } = req.query
+    const result = await userService.handleSearch({ value, limit: Number(limit), page: Number(page) })
+    result.length > 0 &&
+      Array.from(result).forEach((user: any) => {
+        if (user.avatar !== '') {
+          const avatar = JSON.parse(user.avatar)
+          user.avatar = avatar
+        }
+        if (user.backgroundImage !== '') {
+          const backgroundImage = JSON.parse(user.backgroundImage)
+          user.backgroundImage = backgroundImage
+        }
+      })
+    return res.json(result)
   },
   sendOtpFromMail: async (req: Request<ParamsDictionary, any, VerifyEmailReqBody>, res: Response) => {
     const { email } = req.body

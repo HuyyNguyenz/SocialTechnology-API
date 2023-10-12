@@ -1,3 +1,5 @@
+import { SignOptions } from 'jsonwebtoken'
+
 export interface UserType {
   email: string
   password: string
@@ -23,7 +25,13 @@ export enum Gender {
 }
 
 export interface TokenPayload {
-  id: number
+  userId: number
   iat: number
   exp: number
+}
+
+export interface JwtType {
+  payload: string | Buffer | object
+  privateKey: string
+  options?: SignOptions
 }
