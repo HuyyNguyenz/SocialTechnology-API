@@ -123,16 +123,16 @@ class UserService {
   }
   handleSearch = async ({ value, limit, page }: { value: string; limit: number; page: number }) => {
     const user = new User()
-    const sql =
-      "SELECT * FROM users WHERE firstName COLLATE utf8_general_ci like '%?%' OR lastName COLLATE utf8_general_ci like '%?%'"
-    const values = [value, value]
-    const result = await user.find(sql, values)
+    const sql = `SELECT id,username,email,firstName,lastName,gender,avatar,backgroundImage FROM users WHERE firstName COLLATE utf8_general_ci like '%${value}%' OR lastName COLLATE utf8_general_ci like '%${value}%' LIMIT ${limit} OFFSET ${
+      limit * (page - 1)
+    }`
+    const result = await user.find(sql, [])
     if (result.length > 0) {
       return result
     } else {
-      const sql = 'SELECT * FROM users WHERE MATCH(firstName,lastName) AGAINST(?)'
-      const values = [value]
-      const resultFullText = await user.find(sql, values)
+      const sql =
+        'SELECT id,username,email,firstName,lastName,gender,avatar,backgroundImage FROM users WHERE firstName FROM users WHERE MATCH(firstName,lastName) AGAINST(?)'
+      const resultFullText = await user.find(sql, [value])
       return resultFullText
     }
   }
@@ -157,7 +157,7 @@ class UserService {
       subject: 'RECOVERY PASSWORD', // Subject line
       html // html body
     })
-    return { message: 'Otp code sent to email. Please check your email' }
+    return { message: 'Otp code has been sent. Please check your email' }
   }
   handleUpdatePassword = async (password: string, email: string) => {
     const hashPassword = md5(password)

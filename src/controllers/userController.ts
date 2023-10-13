@@ -91,8 +91,6 @@ const userController = {
   sendOtpFromMail: async (req: Request<ParamsDictionary, any, VerifyEmailReqBody>, res: Response) => {
     const { email } = req.body
     const userData = req.user as UserType
-    console.log('userData:', userData)
-
     if (email && userData) {
       const result = await userService.handleSendOtp(email, userData)
       res.json(result)
@@ -100,7 +98,7 @@ const userController = {
   },
   permitRecoveryPassword: async (req: Request, res: Response) => {
     const userOtp = (req.user as UserType).otpCode as string
-    return res.json({ userOtp })
+    return res.json({ message: 'Verify successfully', userOtp })
   },
   recoveryPassword: async (req: Request<RecoveryPasswordReqParam, any, RecoveryPasswordReqBody>, res: Response) => {
     const { email } = req.params

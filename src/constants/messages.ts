@@ -24,11 +24,11 @@ export const USER_MESSAGES = {
   VERIFY_USER_SUCCESSFULLY: 'Verify user successfully',
   REFRESH_TOKEN_IS_NOT_EMPTY: 'Refresh token is not empty',
   REFRESH_TOKEN_IS_NOT_EXISTS: 'Refresh token is not exists',
-  REFRESH_TOKEN_IS_NOT_CORRECT: 'Refresh token is not correct',
+  REFRESH_TOKEN_IS_NOT_VALID: 'Refresh token is not valid',
   REFRESH_TOKEN_SUCCESSFULLY: 'Refresh token successfully',
   OTP_CODE_IS_NOT_EMPTY: 'Otp code is not empty',
   OTP_CODE_IS_NOT_CORRECT: 'Otp code is not correct',
   UPDATE_PASSWORD_SUCCESSFULLY: 'Update password successfully',
   ACCESS_TOKEN_IS_REQUIRED: 'Access token is required',
-  ACCESS_TOKEN_IS_NOT_CORRECT: 'Access token is not correct'
+  ACCESS_TOKEN_IS_NOT_VALID: 'Access token is not valid'
 } as const

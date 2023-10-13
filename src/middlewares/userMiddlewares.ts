@@ -200,7 +200,7 @@ export const refreshTokenValidator = validate(
               return true
             } catch (error) {
               throw new ErrorWithStatus({
-                message: USER_MESSAGES.REFRESH_TOKEN_IS_NOT_CORRECT,
+                message: USER_MESSAGES.REFRESH_TOKEN_IS_NOT_VALID,
                 status: HTTP_STATUS.BAD_REQUEST
               })
             }
@@ -280,7 +280,8 @@ export const verifyTokenValidator = validate(
         trim: true,
         custom: {
           options: async (value: string, { req }) => {
-            if (!value) {
+            const token = value.split(' ')[1]
+            if (!token) {
               throw new ErrorWithStatus({
                 message: USER_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
                 status: HTTP_STATUS.UNAUTHORIZED
@@ -288,15 +289,15 @@ export const verifyTokenValidator = validate(
             }
             try {
               const decodedAccessToken = await verifyToken({
-                token: value,
+                token,
                 secretOrPublicKey: process.env.ACCESS_TOKEN_KEY as string
               })
               ;(req as Request).decodedAccessToken = decodedAccessToken
               return true
             } catch (error) {
               throw new ErrorWithStatus({
-                message: USER_MESSAGES.ACCESS_TOKEN_IS_NOT_CORRECT,
-                status: HTTP_STATUS.BAD_REQUEST
+                message: USER_MESSAGES.ACCESS_TOKEN_IS_NOT_VALID,
+                status: HTTP_STATUS.FORBIDDEN
               })
             }
           }

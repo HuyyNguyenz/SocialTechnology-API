@@ -43,7 +43,7 @@ class User {
   getAllByLimit = async (limit: number, offset: number) => {
     const connection = await connectDb()
     try {
-      const [result]: any = await connection.execute(`SELECT * FROM users LIMIT ${limit} OFFSET ${offset}`)
+      const [result]: any = await connection.execute(`SELECT * FROM users LIMIT ${limit},${limit * (offset - 1)}`)
       connection.end()
       return result
     } catch (error) {
