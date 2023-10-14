@@ -88,17 +88,14 @@ class UserService {
     await user.update(sql, values)
     return { message: USER_MESSAGES.LOGIN_SUCCESSFULLY, accessToken, refreshToken }
   }
-  handleGetUser = async (userId: string) => {
+  handleGetMe = async (userId: number) => {
     const user = new User()
-    const sql = 'SELECT * FROM `users` WHERE id=? OR username=? OR token=?'
-    const values = [userId, userId, userId]
-    const result = await user.find(sql, values)
-    if (result.length > 0) {
-      const { password, token, otpCode, socketId, ...data } = result[0]
-      return { data, status: 200 }
-    } else {
-      return { message: 'Không tìm thấy', status: 404 }
-    }
+    const sql = 'SELECT id,username,email,firstName,lastName,gender,avatar,backgroundImage FROM users WHERE id=?'
+    const value = [userId]
+    const [result] = await user.find(sql, value)
+    const avatar = result.avatar !== '' && JSON.parse(result.avatar)
+    const backgroundImage = result.backgroundImage !== '' && JSON.parse(result.backgroundImage)
+    return { ...result, avatar, backgroundImage }
   }
   handleGetAllUser = async () => {
     const user = new User()
@@ -130,9 +127,10 @@ class UserService {
     if (result.length > 0) {
       return result
     } else {
-      const sql =
-        'SELECT id,username,email,firstName,lastName,gender,avatar,backgroundImage FROM users WHERE firstName FROM users WHERE MATCH(firstName,lastName) AGAINST(?)'
-      const resultFullText = await user.find(sql, [value])
+      const sql = `SELECT id,username,email,firstName,lastName,gender,avatar,backgroundImage FROM users WHERE MATCH(firstName,lastName) AGAINST('${value}') LIMIT ${limit} OFFSET ${
+        limit * (page - 1)
+      }`
+      const resultFullText = await user.find(sql, [])
       return resultFullText
     }
   }

@@ -114,16 +114,17 @@ export const usernameValidator = validate(
             }
             const user = new User()
             const sql = 'SELECT * FROM users WHERE username=?'
-            const [usernameExists] = await user.find(sql, [value])
-            if (!usernameExists) {
+            const [userData] = await user.find(sql, [value])
+            if (!userData) {
               throw new ErrorWithStatus({ message: USER_MESSAGES.USERNAME_NOT_FOUND, status: HTTP_STATUS.NOT_FOUND })
             }
+            ;(req as Request).user = userData
             return true
           }
         }
       }
     },
-    ['body']
+    ['body', 'params']
   )
 )
 

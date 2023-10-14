@@ -39,18 +39,15 @@ const userController = {
       res.json(result)
     }
   },
-  getUser: async (req: Request, res: Response) => {
-    const { id } = req.params
-    if (id) {
-      const result = await userService.handleGetUser(id)
-      const avatar = result.data ? (result.data.avatar !== '' ? JSON.parse(result.data.avatar) : '') : ''
-      const backgroundImage = result.data
-        ? result.data.backgroundImage !== ''
-          ? JSON.parse(result.data.backgroundImage)
-          : ''
-        : ''
-      res.status(result.status).json({ ...result.data, avatar, backgroundImage })
-    }
+  getMe: async (req: Request, res: Response) => {
+    const { userId } = req.decodedAccessToken as TokenPayload
+    const result = await userService.handleGetMe(userId)
+    return res.json(result)
+  },
+  getUser: (req: Request, res: Response) => {
+    const { token, birthDay, createdAt, password, isOnline, otpCode, socketId, verify, ...userData } =
+      req.user as UserType
+    return res.json(userData)
   },
   getAllUser: async (req: Request, res: Response) => {
     const result = await userService.handleGetAllUser()
