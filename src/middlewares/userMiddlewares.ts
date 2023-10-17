@@ -3,7 +3,7 @@ import { checkSchema } from 'express-validator'
 import md5 from 'md5'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { USER_MESSAGES } from '~/constants/messages'
-import ErrorWithStatus from '~/models/Error'
+import { ErrorWithStatus } from '~/models/Error'
 import User from '~/models/User'
 import { Gender, TokenPayload, UserType } from '~/types/userType'
 import validate from '~/utils/validation'
@@ -39,37 +39,59 @@ const passwordSchema = {
     errorMessage: USER_MESSAGES.PASSWORD_MUST_BE_STRONG
   }
 }
+const firstNameSchema = {
+  notEmpty: { errorMessage: USER_MESSAGES.FIRST_NAME_IS_NOT_EMPTY },
+  isString: {
+    errorMessage: USER_MESSAGES.FIRST_NAME_MUST_BE_STRING
+  },
+  trim: true
+}
+const lastNameSchema = {
+  notEmpty: { errorMessage: USER_MESSAGES.LAST_NAME_IS_NOT_EMPTY },
+  isString: {
+    errorMessage: USER_MESSAGES.LAST_NAME_MUST_BE_STRING
+  },
+  trim: true
+}
+const birthDaySchema = {
+  notEmpty: {
+    errorMessage: USER_MESSAGES.BIRTHDAY_IS_NOT_EMPTY
+  },
+  isDate: {
+    options: {
+      format: 'DD/MM/YYYY'
+    },
+    errorMessage: USER_MESSAGES.BIRTHDAY_IS_NOT_VALID
+  }
+}
+const genderSchema = {
+  notEmpty: {
+    errorMessage: USER_MESSAGES.GENDER_IS_NOT_EMPTY
+  },
+  custom: {
+    options: (value: Gender) => {
+      if (![Gender.MALE, Gender.FEMALE].includes(value)) {
+        throw new Error(USER_MESSAGES.GENDER_IS_NOT_VALID)
+      }
+      return true
+    }
+  }
+}
+const imageSchema = {
+  optional: true,
+  isString: {
+    errorMessage: USER_MESSAGES.IMAGE_MUST_BE_STRING
+  }
+}
 
 export const registerValidator = validate(
   checkSchema(
     {
       email: emailSchema,
       password: passwordSchema,
-      firstName: {
-        notEmpty: { errorMessage: USER_MESSAGES.FIRST_NAME_IS_NOT_EMPTY },
-        isString: {
-          errorMessage: USER_MESSAGES.FIRST_NAME_MUST_BE_STRING
-        },
-        trim: true
-      },
-      lastName: {
-        notEmpty: { errorMessage: USER_MESSAGES.LAST_NAME_IS_NOT_EMPTY },
-        isString: {
-          errorMessage: USER_MESSAGES.LAST_NAME_MUST_BE_STRING
-        },
-        trim: true
-      },
-      birthDay: {
-        notEmpty: {
-          errorMessage: USER_MESSAGES.BIRTHDAY_IS_NOT_EMPTY
-        },
-        isDate: {
-          options: {
-            format: 'DD/MM/YYYY'
-          },
-          errorMessage: USER_MESSAGES.BIRTHDAY_IS_NOT_VALID
-        }
-      },
+      firstName: firstNameSchema,
+      lastName: lastNameSchema,
+      birthDay: birthDaySchema,
       createdAt: {
         notEmpty: {
           errorMessage: USER_MESSAGES.CREATED_AT_IS_NOT_EMPTY
@@ -81,19 +103,7 @@ export const registerValidator = validate(
           errorMessage: USER_MESSAGES.CREATED_AT_IS_NOT_VALID
         }
       },
-      gender: {
-        notEmpty: {
-          errorMessage: USER_MESSAGES.GENDER_IS_NOT_EMPTY
-        },
-        custom: {
-          options: (value: Gender, { req }) => {
-            if (![Gender.MALE, Gender.FEMALE].includes(value)) {
-              throw new Error(USER_MESSAGES.GENDER_IS_NOT_VALID)
-            }
-            return true
-          }
-        }
-      }
+      gender: genderSchema
     },
     ['body']
   )
@@ -338,5 +348,27 @@ export const paginationValidator = validate(
       }
     },
     ['query']
+  )
+)
+
+export const updateProfileValidator = validate(
+  checkSchema(
+    {
+      firstName: {
+        ...firstNameSchema,
+        optional: true,
+        notEmpty: false
+      },
+      lastName: {
+        ...lastNameSchema,
+        optional: true,
+        notEmpty: false
+      },
+      birthDay: { ...birthDaySchema, optional: true, notEmpty: false },
+      gender: { ...genderSchema, optional: true, notEmpty: false },
+      avatar: imageSchema,
+      backgroundImage: imageSchema
+    },
+    ['body']
   )
 )

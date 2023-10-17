@@ -21,6 +21,7 @@ export const USER_MESSAGES = {
   USERNAME_MUST_BE_STRING: 'Username must be string',
   USERNAME_NOT_FOUND: 'Username not found',
   LOGIN_SUCCESSFULLY: 'Login successfully',
+  LOGOUT_SUCCESSFULLY: 'Logout successfully',
   VERIFY_USER_SUCCESSFULLY: 'Verify user successfully',
   REFRESH_TOKEN_IS_NOT_EMPTY: 'Refresh token is not empty',
   REFRESH_TOKEN_IS_NOT_EXISTS: 'Refresh token is not exists',
@@ -29,6 +30,9 @@ export const USER_MESSAGES = {
   OTP_CODE_IS_NOT_EMPTY: 'Otp code is not empty',
   OTP_CODE_IS_NOT_CORRECT: 'Otp code is not correct',
   UPDATE_PASSWORD_SUCCESSFULLY: 'Update password successfully',
+  UPDATE_PROFILE_SUCCESSFULLY: 'Update profile successfully',
   ACCESS_TOKEN_IS_REQUIRED: 'Access token is required',
-  ACCESS_TOKEN_IS_NOT_VALID: 'Access token is not valid'
+  ACCESS_TOKEN_IS_NOT_VALID: 'Access token is not valid',
+  IMAGE_MUST_BE_STRING: 'Image must be string',
+  VALIDATION_ERROR: 'Validation error'
 } as const

@@ -23,3 +23,12 @@ export interface Pagination {
   limit: string
   page: string
 }
+
+export interface UpdateProfileReqBody {
+  firstName?: string
+  lastName?: string
+  birthDay?: string
+  gender?: string
+  avatar?: string
+  backgroundImage?: string
+}

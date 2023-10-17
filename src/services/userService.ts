@@ -8,6 +8,7 @@ import { USER_MESSAGES } from '~/constants/messages'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { config } from 'dotenv'
 import { signToken } from '~/utils/jwt'
+import { UpdateProfileReqBody } from '~/requestTypes'
 
 config()
 class UserService {
@@ -88,6 +89,14 @@ class UserService {
     await user.update(sql, values)
     return { message: USER_MESSAGES.LOGIN_SUCCESSFULLY, accessToken, refreshToken }
   }
+  handleLogout = async (userId: number) => {
+    const user = new User()
+    const sql = 'UPDATE users SET token=null WHERE id=?'
+    await user.update(sql, [userId])
+    return {
+      message: USER_MESSAGES.LOGOUT_SUCCESSFULLY
+    }
+  }
   handleGetMe = async (userId: number) => {
     const user = new User()
     const sql = 'SELECT id,username,email,firstName,lastName,gender,avatar,backgroundImage FROM users WHERE id=?'
@@ -165,15 +174,15 @@ class UserService {
     await user.update(sql, values)
     return { message: USER_MESSAGES.UPDATE_PASSWORD_SUCCESSFULLY }
   }
-  handleUpdateProfile = async (id: number, data: UserType) => {
+  handleUpdateProfile = async (userId: number, data: UpdateProfileReqBody) => {
     const user = new User()
-    const { firstName, lastName, birthDay, gender, avatar, backgroundImage } = data
-    const sql = 'UPDATE `users` SET firstName=?,lastName=?,birthDay=?,gender=?,avatar=?,backgroundImage=? WHERE id=?'
-    const avatarString = avatar?.name !== '' ? JSON.stringify(avatar) : ''
-    const backgroundImageString = backgroundImage?.name !== '' ? JSON.stringify(backgroundImage) : ''
-    const values = [firstName, lastName, birthDay, gender, avatarString, backgroundImageString, id]
-    await user.update(sql, values)
-    return { message: 'Cập nhật thành công' }
+    const sql = `UPDATE users SET ${data.firstName ? `firstName='${data.firstName}'` : ''}${
+      data.lastName ? `,lastName='${data.lastName}'` : ''
+    }${data.birthDay ? `,birthDay='${data.birthDay}'` : ''}${data.gender ? `,gender='${data.gender}'` : ''}${
+      data.avatar ? `,avatar='${JSON.stringify(data.avatar)}'` : ''
+    }${data.backgroundImage ? `,backgroundImage='${JSON.stringify(data.backgroundImage)}'` : ''} WHERE id=${userId}`
+    const result = await user.update(sql, [])
+    return { message: USER_MESSAGES.UPDATE_PROFILE_SUCCESSFULLY, result }
   }
   handleUpdateSocketId = async (id: number, socketId: string) => {
     const user = new User()
@@ -182,10 +191,10 @@ class UserService {
     await user.update(sql, values)
     return { message: 'Cập nhật socketId thành công' }
   }
-  handleUpdateUserState = async (id: number, state: string) => {
+  handleUpdateUserState = async (userId: number, state: string) => {
     const user = new User()
-    await user.update('UPDATE users SET isOnline=? WHERE id=?', [state, id])
-    return { message: 'Cập nhật trạng thái thành công' }
+    await user.update('UPDATE users SET isOnline=? WHERE id=?', [state, userId])
+    return { message: USER_MESSAGES.UPDATE_PROFILE_SUCCESSFULLY }
   }
 }
 const userService = new UserService()

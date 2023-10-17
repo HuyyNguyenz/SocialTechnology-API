@@ -13,6 +13,7 @@ import {
   RecoveryPasswordReqBody,
   RecoveryPasswordReqParam,
   SearchReqQuery,
+  UpdateProfileReqBody,
   VerifyEmailReqBody,
   VerifyReqBody
 } from '~/requestTypes'
@@ -26,11 +27,8 @@ const userController = {
     }
   },
   registerUser: async (req: Request<ParamsDictionary, any, UserType>, res: Response) => {
-    const userData = req.body
-    if (userData) {
-      const result = await userService.handleRegister(userData)
-      return res.status(result.status).json(result)
-    }
+    const result = await userService.handleRegister(req.body)
+    return res.status(result.status).json(result)
   },
   loginUser: async (req: Request, res: Response) => {
     const user = req.user as UserType
@@ -39,15 +37,19 @@ const userController = {
       res.json(result)
     }
   },
+  logoutUser: async (req: Request, res: Response) => {
+    const { userId } = req.decodedRefreshToken as TokenPayload
+    const result = await userService.handleLogout(userId)
+    return res.json(result)
+  },
   getMe: async (req: Request, res: Response) => {
     const { userId } = req.decodedAccessToken as TokenPayload
     const result = await userService.handleGetMe(userId)
     return res.json(result)
   },
   getUser: (req: Request, res: Response) => {
-    const { token, birthDay, createdAt, password, isOnline, otpCode, socketId, verify, ...userData } =
-      req.user as UserType
-    return res.json(userData)
+    const { token, birthDay, createdAt, password, isOnline, otpCode, socketId, verify, ...user } = req.user as UserType
+    return res.json(user)
   },
   getAllUser: async (req: Request, res: Response) => {
     const result = await userService.handleGetAllUser()
@@ -105,22 +107,17 @@ const userController = {
       res.json(result)
     }
   },
-  updateUserProfile: async (req: Request, res: Response) => {
-    const { id } = req.params
-    if (id && req.body.id) {
-      const result = await userService.handleUpdateProfile(Number(id), req.body)
-      res.status(200).json(result)
-    } else {
-      const { socketId } = req.body
-      const result = await userService.handleUpdateSocketId(Number(id), socketId)
-      res.status(200).json(result)
-    }
+  updateUserProfile: async (req: Request<ParamsDictionary, any, UpdateProfileReqBody>, res: Response) => {
+    const { userId } = req.decodedAccessToken as TokenPayload
+    const result = await userService.handleUpdateProfile(userId, req.body)
+    return res.json(result)
   },
   updateUserState: async (req: Request, res: Response) => {
-    const { id, state } = req.params
-    if (id && state) {
-      const result = await userService.handleUpdateUserState(Number(id), state)
-      res.status(200).json(result)
+    const { state } = req.params
+    const { userId } = req.decodedAccessToken as TokenPayload
+    if (userId && state) {
+      const result = await userService.handleUpdateUserState(userId, state)
+      res.json(result)
     }
   },
   getPostList: async (req: Request, res: Response) => {
