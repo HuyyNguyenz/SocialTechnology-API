@@ -4,19 +4,19 @@ import Post from '../models/Post'
 import { PostType } from '../types/postType'
 
 const postService = {
-  handleGetPostList: async (limit: number, offset: number) => {
+  handleGetPostList: async (limit: number, page: number) => {
     const post = new Post()
-    const result = await post.getAll(limit, offset)
+    const result = await post.getAll(limit, limit * (page - 1))
     return result
   },
-  handleGetPostListByUser: async (userId: number, limit: number, offset: number) => {
+  handleGetPostListByUser: async (userId: number, limit: number, page: number) => {
     const post = new Post()
-    const result = await post.getAllById(userId, limit, offset)
+    const result = await post.getAllById(userId, limit, limit * (page - 1))
     return result
   },
   handleGetPostDetail: async (id: number) => {
     const post = new Post()
-    const result = await post.get(id)
+    const [result] = await post.get(id)
     return result
   },
   handleAddPost: async (data: PostType) => {

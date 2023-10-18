@@ -1,8 +1,7 @@
-import express, { Express, NextFunction, Request, Response } from 'express'
+import express from 'express'
 import http from 'http'
 import { Server } from 'socket.io'
 import dotenv from 'dotenv'
-import initialRoutes from './routes'
 import cors from 'cors'
 import User from './models/User'
 import Post from './models/Post'
@@ -12,9 +11,10 @@ import { UserType } from './types/userType'
 import { FriendType } from './types/friendType'
 import userRouter from './routes/userRoutes'
 import { defaultErrorHandler } from './middlewares/errorMiddlewares'
+import postRouter from './routes/postRoutes'
 
 dotenv.config()
-const app: Express = express()
+const app = express()
 const port = process.env.PORT || 8080
 
 app.get('/', (req, res) => {
@@ -22,20 +22,14 @@ app.get('/', (req, res) => {
 })
 
 // Config express get value from request body
-// app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
 // Config CORS
 app.use(cors())
-// app.use((req: Request, res: Response, next: NextFunction) => {
-//   res.header('Access-Control-Allow-Origin', '*')
-//   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE')
-//   res.header('Access-Control-Allow-Headers', 'Content-type')
-//   next()
-// })
 
-// initialRoutes(app)
+// Initial routes
 app.use('/api', userRouter)
+app.use('/api', postRouter)
 app.use(defaultErrorHandler)
 
 const server = http.createServer(app)

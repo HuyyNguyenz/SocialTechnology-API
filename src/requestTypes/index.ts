@@ -32,3 +32,11 @@ export interface UpdateProfileReqBody {
   avatar?: string
   backgroundImage?: string
 }
+
+export interface UserIdReqParam extends ParamsDictionary {
+  userId: string
+}
+
+export interface PostIdReqParam extends ParamsDictionary {
+  id: string
+}

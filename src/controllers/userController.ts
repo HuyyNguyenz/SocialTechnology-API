@@ -1,13 +1,11 @@
 import { Request, Response } from 'express'
 import { TokenPayload, UserType } from '../types/userType'
 import userService from '../services/userService'
-import postService from '../services/postService'
 import commentService from '../services/commentService'
 import friendService from '../services/friendService'
 import { FriendType } from '../types/friendType'
 import notifyService from '../services/notifyService'
 import messageService from '../services/messageService'
-import axios from 'axios'
 import { ParamsDictionary } from 'express-serve-static-core'
 import {
   RecoveryPasswordReqBody,
@@ -17,6 +15,7 @@ import {
   VerifyEmailReqBody,
   VerifyReqBody
 } from '~/requestTypes'
+import HTTP_STATUS from '~/constants/httpStatus'
 
 const userController = {
   verifyUser: async (req: Request<ParamsDictionary, any, VerifyReqBody>, res: Response) => {
@@ -28,7 +27,7 @@ const userController = {
   },
   registerUser: async (req: Request<ParamsDictionary, any, UserType>, res: Response) => {
     const result = await userService.handleRegister(req.body)
-    return res.status(result.status).json(result)
+    return res.status(HTTP_STATUS.CREATED).json(result)
   },
   loginUser: async (req: Request, res: Response) => {
     const user = req.user as UserType
@@ -48,7 +47,7 @@ const userController = {
     return res.json(result)
   },
   getUser: (req: Request, res: Response) => {
-    const { token, birthDay, createdAt, password, isOnline, otpCode, socketId, verify, ...user } = req.user as UserType
+    const { token, password, isOnline, otpCode, socketId, verify, ...user } = req.user as UserType
     return res.json(user)
   },
   getAllUser: async (req: Request, res: Response) => {
@@ -118,98 +117,6 @@ const userController = {
     if (userId && state) {
       const result = await userService.handleUpdateUserState(userId, state)
       res.json(result)
-    }
-  },
-  getPostList: async (req: Request, res: Response) => {
-    const { limit, offset } = req.params
-    const result = await postService.handleGetPostList(Number(limit), Number(offset))
-    result.length > 0 &&
-      Array.from(result).forEach((post: any) => {
-        if (post.images) {
-          const images = JSON.parse(post.images)
-          post.images = images
-        }
-        if (post.video) {
-          const video = JSON.parse(post.video)
-          post.video = video
-        }
-      })
-    res.status(200).json(result)
-  },
-  getPostListByUser: async (req: Request, res: Response) => {
-    const { userId, limit, offset } = req.params
-    const result = await postService.handleGetPostListByUser(Number(userId), Number(limit), Number(offset))
-    result.length > 0 &&
-      Array.from(result).forEach((post: any) => {
-        if (post.images) {
-          const images = JSON.parse(post.images)
-          post.images = images
-        }
-        if (post.video) {
-          const video = JSON.parse(post.video)
-          post.video = video
-        }
-      })
-    res.status(200).json(result)
-  },
-  getPostDetail: async (req: Request, res: Response) => {
-    const { id } = req.params
-    if (id) {
-      const result = await postService.handleGetPostDetail(Number(id))
-      result.length > 0 &&
-        Array.from(result).forEach((post: any) => {
-          if (post.images) {
-            const images = JSON.parse(post.images)
-            post.images = images
-          }
-          if (post.video) {
-            const video = JSON.parse(post.video)
-            post.video = video
-          }
-        })
-      res.status(200).json(result)
-    }
-  },
-  getLikesPost: async (req: Request, res: Response) => {
-    const { postId } = req.params
-    if (postId) {
-      const result = await postService.handleGetLikesPost(Number(postId))
-      res.status(200).json(result)
-    }
-  },
-  addPost: async (req: Request, res: Response) => {
-    const { createdAt } = req.body
-    if (createdAt) {
-      const result = await postService.handleAddPost(req.body)
-      res.status(result.status).json(result)
-    }
-  },
-  likePost: async (req: Request, res: Response) => {
-    const { userId, postId, type, receiverId } = req.body
-    if (userId && postId && type === 'like' && receiverId) {
-      const result = await postService.handleLikePost(userId, postId, type, receiverId)
-      res.status(result.status).json(result)
-    }
-  },
-  deletePost: async (req: Request, res: Response) => {
-    const { id } = req.params
-    if (id) {
-      const result = await postService.handleDeletePost(Number(id))
-      res.status(result.status).json(result)
-    }
-  },
-  deleteLikePost: async (req: Request, res: Response) => {
-    const { id } = req.params
-    if (id) {
-      const result = await postService.handleUnlikePost(Number(id))
-      res.status(result.status).json(result)
-    }
-  },
-  updatePost: async (req: Request, res: Response) => {
-    const { id } = req.params
-    if (id) {
-      const result = await postService.handleUpdatePost(Number(id), req.body)
-      res.status(result.status).json(result)
     }
   },
   getCommentList: async (req: Request, res: Response) => {
@@ -337,33 +244,6 @@ const userController = {
     if (id) {
       const result = await messageService.handleUpdateMessage(Number(id), req.body)
       res.status(result.status).json(result)
-    }
-  },
-  getArticle: async (req: Request, res: Response) => {
-    const { link } = req.query
-    try {
-      const data = (await axios.get(link as string)).data
-      res.status(200).json(data)
-    } catch (error) {
-      res.status(404).json({ message: 'Lỗi' })
-    }
-  },
-  getLikes: async (req: Request, res: Response) => {
-    const result = await postService.handleGetLikes()
-    res.status(200).json(result)
-  },
-  sharePost: async (req: Request, res: Response) => {
-    const { userId, postId, type } = req.body
-    if (userId && postId && type) {
-      const result = await postService.handleSharePost(userId, postId, type)
-      res.status(result.status).json(result)
-    }
-  },
-  getSharesPost: async (req: Request, res: Response) => {
-    const { postId } = req.params
-    if (postId) {
-      const result = await postService.handleGetSharesPost(Number(postId))
-      res.status(200).json(result)
     }
   }
 }

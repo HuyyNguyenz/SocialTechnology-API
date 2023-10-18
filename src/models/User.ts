@@ -32,7 +32,9 @@ class User {
   getAll = async () => {
     const connection = await connectDb()
     try {
-      const [result]: any = await connection.execute('SELECT * FROM `users`')
+      const [result]: any = await connection.execute(
+        'SELECT id,username,email,firstName,lastName,birthDay,createdAt,gender,avatar,backgroundImage FROM users'
+      )
       connection.end()
       return result
     } catch (error) {

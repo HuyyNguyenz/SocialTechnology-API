@@ -5,10 +5,11 @@ import User from '../models/User'
 import { UserType } from '../types/userType'
 import { emailGen } from '../utils/email'
 import { USER_MESSAGES } from '~/constants/messages'
-import HTTP_STATUS from '~/constants/httpStatus'
 import { config } from 'dotenv'
 import { signToken } from '~/utils/jwt'
 import { UpdateProfileReqBody } from '~/requestTypes'
+import { ErrorWithStatus } from '~/models/Error'
+import HTTP_STATUS from '~/constants/httpStatus'
 
 config()
 class UserService {
@@ -34,41 +35,42 @@ class UserService {
       }
     })
   }
-  handleRegister = async (userData: UserType): Promise<{ message: string; status: number }> => {
+  handleRegister = async (userData: UserType) => {
     const { email, password, firstName, lastName, birthDay, gender, createdAt } = userData
     const username = email.split('@')[0] + birthDay.split('/')[0] + birthDay.split('/')[1]
     const md5Password = md5(password)
     const user = new User(username, email, md5Password, firstName, lastName, birthDay, gender, createdAt)
     const result = await user.insert()
     if (result.code === 'ER_DUP_ENTRY') {
-      return { message: USER_MESSAGES.EMAIL_IS_ALREADY_EXISTS, status: HTTP_STATUS.UNPROCESSABLE_ENTITY }
-    } else {
-      const config = {
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL,
-          pass: process.env.PASS
-        }
-      }
-      const transporter = nodemailer.createTransport(config)
-      const html = emailGen(
-        userData.lastName,
-        'Social Technology',
-        `${process.env.CLIENT}/verify/register/${username}`,
-        'EMAIL VERIFY',
-        'About registering a Social Technology account',
-        'To complete account registration. You need to click the button below to authenticate your email'
-      )
-      await transporter.sendMail({
-        from: process.env.EMAIL, // sender address
-        to: email, // list of receivers
-        subject: 'EMAIL VERIFY', // Subject line
-        html // html body
+      throw new ErrorWithStatus({
+        message: USER_MESSAGES.EMAIL_IS_ALREADY_EXISTS,
+        status: HTTP_STATUS.UNPROCESSABLE_ENTITY
       })
-      return {
-        message: 'We have sent you a confirmation email. Please check your email to complete your registration',
-        status: HTTP_STATUS.CREATED
+    }
+    const config = {
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASS
       }
+    }
+    const transporter = nodemailer.createTransport(config)
+    const html = emailGen(
+      userData.lastName,
+      'Social Technology',
+      `${process.env.CLIENT}/verify/register/${username}`,
+      'EMAIL VERIFY',
+      'About registering a Social Technology account',
+      'To complete account registration. You need to click the button below to authenticate your email'
+    )
+    await transporter.sendMail({
+      from: process.env.EMAIL, // sender address
+      to: email, // list of receivers
+      subject: 'EMAIL VERIFY', // Subject line
+      html // html body
+    })
+    return {
+      message: 'We have sent you a confirmation email. Please check your email to complete your registration'
     }
   }
   handleVerifyUser = async (username: string) => {
@@ -99,7 +101,8 @@ class UserService {
   }
   handleGetMe = async (userId: number) => {
     const user = new User()
-    const sql = 'SELECT id,username,email,firstName,lastName,gender,avatar,backgroundImage FROM users WHERE id=?'
+    const sql =
+      'SELECT id,username,email,firstName,lastName,birthDay,createdAt,gender,avatar,backgroundImage FROM users WHERE id=?'
     const value = [userId]
     const [result] = await user.find(sql, value)
     const avatar = result.avatar !== '' && JSON.parse(result.avatar)
@@ -108,13 +111,8 @@ class UserService {
   }
   handleGetAllUser = async () => {
     const user = new User()
-    const result: UserType[] = await user.getAll()
-    const userArray: any[] = []
-    Array.from(result).forEach((user) => {
-      const { password, token, otpCode, socketId, ...data } = user
-      userArray.push(data)
-    })
-    return userArray
+    const result = await user.getAll()
+    return result
   }
   handleRefreshToken = async ({ userId, exp }: { userId: number; exp: number }) => {
     const user = new User()
@@ -129,14 +127,14 @@ class UserService {
   }
   handleSearch = async ({ value, limit, page }: { value: string; limit: number; page: number }) => {
     const user = new User()
-    const sql = `SELECT id,username,email,firstName,lastName,gender,avatar,backgroundImage FROM users WHERE firstName COLLATE utf8_general_ci like '%${value}%' OR lastName COLLATE utf8_general_ci like '%${value}%' LIMIT ${limit} OFFSET ${
+    const sql = `SELECT id,username,email,firstName,lastName,birthDay,gender,avatar,backgroundImage FROM users WHERE firstName COLLATE utf8_general_ci like '%${value}%' OR lastName COLLATE utf8_general_ci like '%${value}%' LIMIT ${limit} OFFSET ${
       limit * (page - 1)
     }`
     const result = await user.find(sql, [])
     if (result.length > 0) {
       return result
     } else {
-      const sql = `SELECT id,username,email,firstName,lastName,gender,avatar,backgroundImage FROM users WHERE MATCH(firstName,lastName) AGAINST('${value}') LIMIT ${limit} OFFSET ${
+      const sql = `SELECT id,username,email,firstName,lastName,birthDay,gender,avatar,backgroundImage FROM users WHERE MATCH(firstName,lastName) AGAINST('${value}') LIMIT ${limit} OFFSET ${
         limit * (page - 1)
       }`
       const resultFullText = await user.find(sql, [])
@@ -181,8 +179,8 @@ class UserService {
     }${data.birthDay ? `,birthDay='${data.birthDay}'` : ''}${data.gender ? `,gender='${data.gender}'` : ''}${
       data.avatar ? `,avatar='${JSON.stringify(data.avatar)}'` : ''
     }${data.backgroundImage ? `,backgroundImage='${JSON.stringify(data.backgroundImage)}'` : ''} WHERE id=${userId}`
-    const result = await user.update(sql, [])
-    return { message: USER_MESSAGES.UPDATE_PROFILE_SUCCESSFULLY, result }
+    await user.update(sql, [])
+    return { message: USER_MESSAGES.UPDATE_PROFILE_SUCCESSFULLY }
   }
   handleUpdateSocketId = async (id: number, socketId: string) => {
     const user = new User()

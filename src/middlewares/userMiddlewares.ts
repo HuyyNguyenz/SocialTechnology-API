@@ -77,12 +77,6 @@ const genderSchema = {
     }
   }
 }
-const imageSchema = {
-  optional: true,
-  isString: {
-    errorMessage: USER_MESSAGES.IMAGE_MUST_BE_STRING
-  }
-}
 
 export const registerValidator = validate(
   checkSchema(
@@ -365,9 +359,7 @@ export const updateProfileValidator = validate(
         notEmpty: false
       },
       birthDay: { ...birthDaySchema, optional: true, notEmpty: false },
-      gender: { ...genderSchema, optional: true, notEmpty: false },
-      avatar: imageSchema,
-      backgroundImage: imageSchema
+      gender: { ...genderSchema, optional: true, notEmpty: false }
     },
     ['body']
   )
