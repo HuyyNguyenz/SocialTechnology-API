@@ -5,13 +5,15 @@ import HTTP_STATUS from '~/constants/httpStatus'
 import { USER_MESSAGES } from '~/constants/messages'
 import { ErrorWithStatus } from '~/models/Error'
 import User from '~/models/User'
-import { Gender, TokenPayload, UserType } from '~/types/userType'
+import { Gender, UserType } from '~/types/userType'
 import validate from '~/utils/validation'
-import jwt from 'jsonwebtoken'
 import { config } from 'dotenv'
 import { verifyToken } from '~/utils/jwt'
+import { enumObjectToArray } from '~/utils/common'
 
 config()
+const typeGenderArray = enumObjectToArray(Gender)
+
 const emailSchema = {
   isEmail: true,
   trim: true,
@@ -68,13 +70,9 @@ const genderSchema = {
   notEmpty: {
     errorMessage: USER_MESSAGES.GENDER_IS_NOT_EMPTY
   },
-  custom: {
-    options: (value: Gender) => {
-      if (![Gender.MALE, Gender.FEMALE].includes(value)) {
-        throw new Error(USER_MESSAGES.GENDER_IS_NOT_VALID)
-      }
-      return true
-    }
+  isIn: {
+    options: [typeGenderArray],
+    errorMessage: USER_MESSAGES.GENDER_IS_NOT_VALID
   }
 }
 

@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import postController from '~/controllers/postControllers'
+import { createPostValidator, sharePostValidator } from '~/middlewares/postMiddlewares'
 import { paginationValidator, verifyTokenValidator } from '~/middlewares/userMiddlewares'
 import wrapRequestHandler from '~/utils/handlers'
 
@@ -30,11 +31,38 @@ postRouter.get(
   Header: Authorization Bear <accessToken>
 */
 postRouter.get('/post/:id', verifyTokenValidator, wrapRequestHandler(postController.getPostDetail))
-postRouter.get('/likes/post/:postId', verifyTokenValidator, wrapRequestHandler(postController.getLikesPost))
-postRouter.get('/shares/post/:postId', verifyTokenValidator, wrapRequestHandler(postController.getSharesPost))
+/*
+  Path: /likes/post/:id
+  Method: GET
+  Header: Authorization Bear <accessToken>
+*/
+postRouter.get('/likes/post/:id', verifyTokenValidator, wrapRequestHandler(postController.getLikesPost))
+/*
+  Path: /shares/post/:id
+  Method: GET
+  Header: Authorization Bear <accessToken>
+*/
+postRouter.get('/shares/post/:id', verifyTokenValidator, wrapRequestHandler(postController.getSharesPost))
+/*
+  Path: /likes
+  Method: GET
+  Header: Authorization Bear <accessToken>
+*/
 postRouter.get('/likes', verifyTokenValidator, wrapRequestHandler(postController.getLikes))
-postRouter.post('/post', verifyTokenValidator, wrapRequestHandler(postController.addPost))
-postRouter.post('/share/post', verifyTokenValidator, wrapRequestHandler(postController.sharePost))
+/*
+  Path: /post
+  Method: POST
+  Header: Authorization Bear <accessToken>
+  Body: PostType
+*/
+postRouter.post('/post', verifyTokenValidator, createPostValidator, wrapRequestHandler(postController.addPost))
+/*
+  Path: /share/post
+  Method: POST
+  Header: Authorization Bear <accessToken>
+  Body: 
+*/
+postRouter.post('/share/post', verifyTokenValidator, sharePostValidator, wrapRequestHandler(postController.sharePost))
 postRouter.post('/like/post', verifyTokenValidator, wrapRequestHandler(postController.likePost))
 postRouter.delete('/post/:id', verifyTokenValidator, wrapRequestHandler(postController.deletePost))
 postRouter.delete('/unlike/post/:id', verifyTokenValidator, wrapRequestHandler(postController.deleteLikePost))

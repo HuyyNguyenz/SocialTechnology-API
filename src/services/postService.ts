@@ -1,3 +1,4 @@
+import { POST_MESSAGES } from '~/constants/messages'
 import ExtraPost from '../models/ExtraPost'
 import Notify from '../models/Notify'
 import Post from '../models/Post'
@@ -22,7 +23,16 @@ const postService = {
   handleAddPost: async (data: PostType) => {
     const images = (data.images?.length as number) > 0 ? JSON.stringify(data.images) : ''
     const video = data.video?.name ? JSON.stringify(data.video) : ''
-    const post = new Post(data.content, data.createdAt, '', data.userId, data.communityId, data.type, images, video)
+    const post = new Post(
+      data.content,
+      data.createdAt,
+      '',
+      data.userId,
+      data.communityId ? data.communityId : 0,
+      data.type,
+      images,
+      video
+    )
     const { insertId } = await post.insert()
     const result = await post.find('SELECT * FROM posts WHERE id=?', [insertId])
     result.length > 0 &&
@@ -36,12 +46,11 @@ const postService = {
           post.video = video
         }
       })
-
-    return { message: 'Đăng bài thành công', status: 201, post: result[0] }
+    return { message: POST_MESSAGES.CREATED_POST_SUCCESSFULLY, post: result[0] }
   },
-  handleGetLikesPost: async (postId: number) => {
+  handleGetLikesPost: async (id: number) => {
     const ep = new ExtraPost()
-    const result = await ep.getAllById(postId, 'like')
+    const result = await ep.getAllById(id, 'like')
     return result
   },
   handleLikePost: async (userId: number, postId: number, type: string, receiverId: number) => {
@@ -82,12 +91,12 @@ const postService = {
   handleSharePost: async (userId: number, postId: number, type: string) => {
     const ep = new ExtraPost(userId, postId, type)
     await ep.insert()
-    return { status: 201, message: 'Shared post successfully' }
+    return { message: POST_MESSAGES.SHARED_POST_SUCCESSFULLY }
   },
-  handleGetSharesPost: async (postId: number) => {
+  handleGetSharesPost: async (id: number) => {
     const ep = new ExtraPost()
-    const resultShare: any[] = await ep.getAllById(postId, 'share')
-    const resultShareTo: any[] = await ep.getAllById(postId, 'shareTo')
+    const resultShare: any[] = await ep.getAllById(id, 'share')
+    const resultShareTo: any[] = await ep.getAllById(id, 'shareTo')
     return [...resultShare, ...resultShareTo]
   }
 }

@@ -40,3 +40,9 @@ export interface UserIdReqParam extends ParamsDictionary {
 export interface PostIdReqParam extends ParamsDictionary {
   id: string
 }
+
+export interface SharePostReqBody {
+  userId: number
+  postId: number
+  type: string
+}

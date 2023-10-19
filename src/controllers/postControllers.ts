@@ -2,7 +2,9 @@ import axios from 'axios'
 import { Response, Request } from 'express'
 import postService from '~/services/postService'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { Pagination, PostIdReqParam, UserIdReqParam } from '~/requestTypes'
+import { Pagination, PostIdReqParam, SharePostReqBody, UserIdReqParam } from '~/requestTypes'
+import { PostType } from '~/types/postType'
+import HTTP_STATUS from '~/constants/httpStatus'
 
 const postController = {
   getPostList: async (req: Request<ParamsDictionary, any, any, Pagination>, res: Response) => {
@@ -54,19 +56,14 @@ const postController = {
       })
     res.json(result)
   },
-  getLikesPost: async (req: Request, res: Response) => {
-    const { postId } = req.params
-    if (postId) {
-      const result = await postService.handleGetLikesPost(Number(postId))
-      res.status(200).json(result)
-    }
+  getLikesPost: async (req: Request<PostIdReqParam>, res: Response) => {
+    const { id } = req.params
+    const result = await postService.handleGetLikesPost(Number(id))
+    res.json(result)
   },
-  addPost: async (req: Request, res: Response) => {
-    const { createdAt } = req.body
-    if (createdAt) {
-      const result = await postService.handleAddPost(req.body)
-      res.status(result.status).json(result)
-    }
+  addPost: async (req: Request<ParamsDictionary, any, PostType>, res: Response) => {
+    const result = await postService.handleAddPost(req.body)
+    res.status(HTTP_STATUS.CREATED).json(result)
   },
   likePost: async (req: Request, res: Response) => {
     const { userId, postId, type, receiverId } = req.body
@@ -98,21 +95,17 @@ const postController = {
   },
   getLikes: async (req: Request, res: Response) => {
     const result = await postService.handleGetLikes()
-    res.status(200).json(result)
+    return res.json(result)
   },
-  sharePost: async (req: Request, res: Response) => {
+  sharePost: async (req: Request<ParamsDictionary, any, SharePostReqBody>, res: Response) => {
     const { userId, postId, type } = req.body
-    if (userId && postId && type) {
-      const result = await postService.handleSharePost(userId, postId, type)
-      res.status(result.status).json(result)
-    }
+    const result = await postService.handleSharePost(userId, postId, type)
+    return res.status(HTTP_STATUS.CREATED).json(result)
   },
-  getSharesPost: async (req: Request, res: Response) => {
-    const { postId } = req.params
-    if (postId) {
-      const result = await postService.handleGetSharesPost(Number(postId))
-      res.status(200).json(result)
-    }
+  getSharesPost: async (req: Request<PostIdReqParam>, res: Response) => {
+    const { id } = req.params
+    const result = await postService.handleGetSharesPost(Number(id))
+    res.json(result)
   },
   getArticle: async (req: Request, res: Response) => {
     const { link } = req.query

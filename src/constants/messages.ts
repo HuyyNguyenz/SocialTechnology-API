@@ -36,3 +36,17 @@ export const USER_MESSAGES = {
   IMAGE_MUST_BE_STRING: 'Image must be string',
   VALIDATION_ERROR: 'Validation error'
 } as const
+
+export const POST_MESSAGES = {
+  CREATED_AT_IS_NOT_EMPTY: 'Created at is not empty',
+  CREATED_AT_IS_NOT_VALID: 'Created at is not valid (DD/MM/YYYY HH:MM)',
+  USER_ID_MUST_BE_NUMBER: 'User id must be number',
+  COMMUNITY_ID_MUST_BE_NUMBER: 'Community id must be number',
+  USER_ID_NOT_FOUND: 'User id not found',
+  TYPE_IS_NOT_VALID: 'Type is not valid (public or private)',
+  CREATED_POST_SUCCESSFULLY: 'Created post successfully',
+  POST_ID_NOT_FOUND: 'Post id not found',
+  POST_ID_MUST_BE_NUMBER: 'Post id must be number',
+  TYPE_POST_SHARE_IS_NOT_VALID: 'Type post share is not valid (share or shareTo)',
+  SHARED_POST_SUCCESSFULLY: 'Shared post successfully'
+} as const

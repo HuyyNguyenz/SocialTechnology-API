@@ -1,10 +1,10 @@
 export interface PostType {
-  content: string
   createdAt: string
   userId: number
   communityId: number
-  type: string
+  type: TypePost
   id?: number
+  content?: string
   modifiedAt?: string
   images?: FilePreview[]
   video?: FilePreview
@@ -16,4 +16,14 @@ export interface FilePreview {
   src: string
   origin?: File
   url?: string
+}
+
+export enum TypePost {
+  PUBLIC = 'public',
+  PRIVATE = 'private'
+}
+
+export enum TypePostShare {
+  EVERYONE = 'share',
+  FRIEND = 'shareTo'
 }
