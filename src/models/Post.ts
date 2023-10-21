@@ -86,10 +86,10 @@ class Post {
     }
   }
 
-  delete = async (id: number) => {
+  delete = async (id: number, userId: number) => {
     const connection = await connectDb()
     try {
-      const [result]: any = await connection.execute('UPDATE `posts` SET deleted=1 WHERE id=?', [id])
+      const [result]: any = await connection.execute('UPDATE posts SET deleted=1 WHERE id=? AND userId=?', [id, userId])
       connection.end()
       return result
     } catch (error) {

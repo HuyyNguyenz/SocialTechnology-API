@@ -2,9 +2,17 @@ import axios from 'axios'
 import { Response, Request } from 'express'
 import postService from '~/services/postService'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { Pagination, PostIdReqParam, SharePostReqBody, UserIdReqParam } from '~/requestTypes'
+import {
+  LikePostReqBody,
+  Pagination,
+  PostIdReqParam,
+  SharePostReqBody,
+  UpdatePostReqBody,
+  UserIdReqParam
+} from '~/requestTypes'
 import { PostType } from '~/types/postType'
 import HTTP_STATUS from '~/constants/httpStatus'
+import { TokenPayload } from '~/types/userType'
 
 const postController = {
   getPostList: async (req: Request<ParamsDictionary, any, any, Pagination>, res: Response) => {
@@ -21,7 +29,7 @@ const postController = {
           post.video = video
         }
       })
-    res.json(result)
+    return res.json(result)
   },
   getPostListByUser: async (req: Request<UserIdReqParam, any, any, Pagination>, res: Response) => {
     const { userId } = req.params
@@ -54,7 +62,7 @@ const postController = {
           post.video = video
         }
       })
-    res.json(result)
+    res.json(result[0])
   },
   getLikesPost: async (req: Request<PostIdReqParam>, res: Response) => {
     const { id } = req.params
@@ -62,43 +70,39 @@ const postController = {
     res.json(result)
   },
   addPost: async (req: Request<ParamsDictionary, any, PostType>, res: Response) => {
-    const result = await postService.handleAddPost(req.body)
+    const { userId } = req.decodedAccessToken as TokenPayload
+    const result = await postService.handleAddPost(userId, req.body)
     res.status(HTTP_STATUS.CREATED).json(result)
   },
-  likePost: async (req: Request, res: Response) => {
-    const { userId, postId, type, receiverId } = req.body
-    if (userId && postId && type === 'like' && receiverId) {
-      const result = await postService.handleLikePost(userId, postId, type, receiverId)
-      res.status(result.status).json(result)
-    }
+  likePost: async (req: Request<ParamsDictionary, any, LikePostReqBody>, res: Response) => {
+    const { userId } = req.decodedAccessToken as TokenPayload
+    const result = await postService.handleLikePost(userId, req.body)
+    res.status(HTTP_STATUS.CREATED).json(result)
   },
   deletePost: async (req: Request, res: Response) => {
+    const { userId } = req.decodedAccessToken as TokenPayload
     const { id } = req.params
-    if (id) {
-      const result = await postService.handleDeletePost(Number(id))
-      res.status(result.status).json(result)
-    }
+    const result = await postService.handleDeletePost(Number(id), userId)
+    return res.json(result)
   },
-  deleteLikePost: async (req: Request, res: Response) => {
+  unLikePost: async (req: Request, res: Response) => {
+    const { userId } = req.decodedAccessToken as TokenPayload
     const { id } = req.params
-    if (id) {
-      const result = await postService.handleUnlikePost(Number(id))
-      res.status(result.status).json(result)
-    }
+    const result = await postService.handleUnlikePost(Number(id), userId)
+    res.json(result)
   },
-  updatePost: async (req: Request, res: Response) => {
+  updatePost: async (req: Request<ParamsDictionary, any, UpdatePostReqBody>, res: Response) => {
     const { id } = req.params
-    if (id) {
-      const result = await postService.handleUpdatePost(Number(id), req.body)
-      res.status(result.status).json(result)
-    }
+    const result = await postService.handleUpdatePost(Number(id), req.body)
+    res.json(result)
   },
   getLikes: async (req: Request, res: Response) => {
     const result = await postService.handleGetLikes()
     return res.json(result)
   },
   sharePost: async (req: Request<ParamsDictionary, any, SharePostReqBody>, res: Response) => {
-    const { userId, postId, type } = req.body
+    const { userId } = req.decodedAccessToken as TokenPayload
+    const { postId, type } = req.body
     const result = await postService.handleSharePost(userId, postId, type)
     return res.status(HTTP_STATUS.CREATED).json(result)
   },

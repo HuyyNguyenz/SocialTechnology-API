@@ -3,6 +3,9 @@ import ExtraPost from '../models/ExtraPost'
 import Notify from '../models/Notify'
 import Post from '../models/Post'
 import { PostType } from '../types/postType'
+import { LikePostReqBody, UpdatePostReqBody } from '~/requestTypes'
+import { ErrorWithStatus } from '~/models/Error'
+import HTTP_STATUS from '~/constants/httpStatus'
 
 const postService = {
   handleGetPostList: async (limit: number, page: number) => {
@@ -17,17 +20,17 @@ const postService = {
   },
   handleGetPostDetail: async (id: number) => {
     const post = new Post()
-    const [result] = await post.get(id)
+    const result = await post.get(id)
     return result
   },
-  handleAddPost: async (data: PostType) => {
+  handleAddPost: async (userId: number, data: PostType) => {
     const images = (data.images?.length as number) > 0 ? JSON.stringify(data.images) : ''
     const video = data.video?.name ? JSON.stringify(data.video) : ''
     const post = new Post(
       data.content,
       data.createdAt,
       '',
-      data.userId,
+      userId,
       data.communityId ? data.communityId : 0,
       data.type,
       images,
@@ -50,42 +53,51 @@ const postService = {
   },
   handleGetLikesPost: async (id: number) => {
     const ep = new ExtraPost()
-    const result = await ep.getAllById(id, 'like')
+    const result = await ep.getAllByPostIdAndType(id, 'like')
     return result
   },
-  handleLikePost: async (userId: number, postId: number, type: string, receiverId: number) => {
-    const ep = new ExtraPost(userId, postId, type)
+  handleLikePost: async (userId: number, data: LikePostReqBody) => {
+    const ep = new ExtraPost(userId, data.postId, data.type)
     const { insertId } = await ep.insert()
-    if (userId !== receiverId) {
-      const notify = new Notify('unseen', 'likedPost', insertId, receiverId)
+    if (userId !== data.receiverId) {
+      const notify = new Notify('unseen', 'likedPost', insertId, data.receiverId)
       await notify.insert()
     }
-    return { status: 201, message: 'Liked post successfully' }
+    return { message: POST_MESSAGES.LIKED_POST_SUCCESSFULLY }
   },
-  handleDeletePost: async (id: number) => {
+  handleDeletePost: async (id: number, userId: number) => {
     const post = new Post()
-    await post.delete(id)
-    return { message: 'Xoá bài viết thành công', status: 201 }
+    const { changedRows } = await post.delete(id, userId)
+    if (changedRows === 0) {
+      throw new ErrorWithStatus({
+        message: POST_MESSAGES.USER_ID_IS_NOT_MATCHED_BY_POST,
+        status: HTTP_STATUS.FORBIDDEN
+      })
+    }
+    return { message: POST_MESSAGES.DELETED_POST_SUCCESSFULLY }
   },
-  handleUnlikePost: async (id: number) => {
+  handleUnlikePost: async (id: number, userId: number) => {
     const ep = new ExtraPost()
-    await ep.delete(id)
     const notify = new Notify()
-    await notify.delete(id, 'likedPost')
-    return { status: 201, message: 'Unlike post successfully' }
+    await Promise.all([await ep.delete(id, userId), await notify.delete(id, 'likedPost')])
+    return { message: POST_MESSAGES.UNLIKE_POST_SUCCESSFULLY }
   },
-  handleUpdatePost: async (id: number, data: PostType) => {
+  handleUpdatePost: async (id: number, data: UpdatePostReqBody) => {
     const post = new Post()
-    const sql = 'UPDATE `posts` SET content=?,modifiedAt=?,images=?,video=?,type=? WHERE id=?'
     const images = (data.images?.length as number) > 0 ? JSON.stringify(data.images) : ''
     const video = data.video?.name ? JSON.stringify(data.video) : ''
-    const values = [data.content, data.modifiedAt, images, video, data.type, id]
-    await post.update(sql, values)
-    return { message: 'Cập nhật bài viết thành công', status: 200 }
+    const sql = `UPDATE posts SET ${data.content ? `content='${data.content}'` : ''}${
+      data.modifiedAt ? `,modifiedAt='${data.modifiedAt}'` : ''
+    }${data.images ? `,images='${images}'` : ''}${data.video ? `,video='${video}'` : ''}${
+      data.type ? `,type='${data.type}'` : ''
+    } WHERE id=${id}`
+    await post.update(sql, [])
+    console.log('sql:', sql)
+    return { message: POST_MESSAGES.UPDATE_POST_SUCCESSFULLY }
   },
   handleGetLikes: async () => {
     const ep = new ExtraPost()
-    const result = await ep.getAll()
+    const result = await ep.getAllByType('like')
     return result
   },
   handleSharePost: async (userId: number, postId: number, type: string) => {
@@ -95,8 +107,8 @@ const postService = {
   },
   handleGetSharesPost: async (id: number) => {
     const ep = new ExtraPost()
-    const resultShare: any[] = await ep.getAllById(id, 'share')
-    const resultShareTo: any[] = await ep.getAllById(id, 'shareTo')
+    const resultShare: any[] = await ep.getAllByPostIdAndType(id, 'share')
+    const resultShareTo: any[] = await ep.getAllByPostIdAndType(id, 'shareTo')
     return [...resultShare, ...resultShareTo]
   }
 }

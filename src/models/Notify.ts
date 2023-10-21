@@ -40,7 +40,7 @@ class Notify {
   delete = async (id: number, type: string) => {
     const connection = await connectDb()
     try {
-      const [result]: any = await connection.execute('DELETE FROM `notifies` WHERE type=? AND typeId=?', [type, id])
+      const [result]: any = await connection.execute('DELETE FROM notifies WHERE typeId=? AND type=?', [id, type])
       connection.end()
       return result
     } catch (error) {

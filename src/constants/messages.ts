@@ -40,6 +40,8 @@ export const USER_MESSAGES = {
 export const POST_MESSAGES = {
   CREATED_AT_IS_NOT_EMPTY: 'Created at is not empty',
   CREATED_AT_IS_NOT_VALID: 'Created at is not valid (DD/MM/YYYY HH:MM)',
+  MODIFIED_AT_IS_NOT_EMPTY: 'Modified at is not empty',
+  MODIFIED_AT_IS_NOT_VALID: 'Modified at is not valid (DD/MM/YYYY HH:MM)',
   USER_ID_MUST_BE_NUMBER: 'User id must be number',
   COMMUNITY_ID_MUST_BE_NUMBER: 'Community id must be number',
   USER_ID_NOT_FOUND: 'User id not found',
@@ -48,5 +50,13 @@ export const POST_MESSAGES = {
   POST_ID_NOT_FOUND: 'Post id not found',
   POST_ID_MUST_BE_NUMBER: 'Post id must be number',
   TYPE_POST_SHARE_IS_NOT_VALID: 'Type post share is not valid (share or shareTo)',
-  SHARED_POST_SUCCESSFULLY: 'Shared post successfully'
+  SHARED_POST_SUCCESSFULLY: 'Shared post successfully',
+  TYPE_POST_LIKE_MUST_BE_STRING: 'Type post like must be string',
+  TYPE_POST_LIKE_IS_NOT_VALID: 'Type post like is not valid ( like )',
+  LIKED_POST_SUCCESSFULLY: 'Liked post successfully',
+  DELETED_POST_SUCCESSFULLY: 'Deleted post successfully',
+  USER_ID_IS_NOT_MATCHED_BY_POST: 'User id is not matched by post',
+  ID_LIKE_POST_IS_NOT_FOUND: 'Id like post is not found',
+  UNLIKE_POST_SUCCESSFULLY: 'Unlike post successfully',
+  UPDATE_POST_SUCCESSFULLY: 'Update post successfully'
 } as const

@@ -114,10 +114,8 @@ const userController = {
   updateUserState: async (req: Request, res: Response) => {
     const { state } = req.params
     const { userId } = req.decodedAccessToken as TokenPayload
-    if (userId && state) {
-      const result = await userService.handleUpdateUserState(userId, state)
-      res.json(result)
-    }
+    const result = await userService.handleUpdateUserState(userId, state)
+    res.json(result)
   },
   getCommentList: async (req: Request, res: Response) => {
     const result = await commentService.handleGetCommentList()

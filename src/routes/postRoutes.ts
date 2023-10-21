@@ -1,6 +1,13 @@
 import { Router } from 'express'
 import postController from '~/controllers/postControllers'
-import { createPostValidator, sharePostValidator } from '~/middlewares/postMiddlewares'
+import {
+  createPostValidator,
+  deletePostValidator,
+  likePostValidator,
+  sharePostValidator,
+  unLikeValidator,
+  updatePostValidator
+} from '~/middlewares/postMiddlewares'
 import { paginationValidator, verifyTokenValidator } from '~/middlewares/userMiddlewares'
 import wrapRequestHandler from '~/utils/handlers'
 
@@ -60,13 +67,41 @@ postRouter.post('/post', verifyTokenValidator, createPostValidator, wrapRequestH
   Path: /share/post
   Method: POST
   Header: Authorization Bear <accessToken>
-  Body: 
+  Body: { userId:number, postId:number, type:string }
 */
 postRouter.post('/share/post', verifyTokenValidator, sharePostValidator, wrapRequestHandler(postController.sharePost))
-postRouter.post('/like/post', verifyTokenValidator, wrapRequestHandler(postController.likePost))
-postRouter.delete('/post/:id', verifyTokenValidator, wrapRequestHandler(postController.deletePost))
-postRouter.delete('/unlike/post/:id', verifyTokenValidator, wrapRequestHandler(postController.deleteLikePost))
-postRouter.put('/post/:id', verifyTokenValidator, wrapRequestHandler(postController.updatePost))
+/*
+  Path: /like/post
+  Method: POST
+  Header: Authorization Bear <accessToken>
+  Body: { userId:number, postId:number, type:string }
+*/
+postRouter.post('/like/post', verifyTokenValidator, likePostValidator, wrapRequestHandler(postController.likePost))
+/*
+  Path: /post/:id
+  Method: DELETE
+  Header: Authorization Bear <accessToken>
+  Body: { userId:number, postId:number, type:string }
+*/
+postRouter.delete('/post/:id', verifyTokenValidator, deletePostValidator, wrapRequestHandler(postController.deletePost))
+/*
+  Path: /unlike/post/:id
+  Method: DELETE
+  Header: Authorization Bear <accessToken>
+*/
+postRouter.delete(
+  '/unlike/post/:id',
+  verifyTokenValidator,
+  unLikeValidator,
+  wrapRequestHandler(postController.unLikePost)
+)
+/*
+  Path: /post/:id
+  Method: PUT
+  Header: Authorization Bear <accessToken>
+  Body: UpdatePostReqBody
+*/
+postRouter.put('/post/:id', verifyTokenValidator, updatePostValidator, wrapRequestHandler(postController.updatePost))
 postRouter.get('/article', verifyTokenValidator, wrapRequestHandler(postController.getArticle))
 
 export default postRouter

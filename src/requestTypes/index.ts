@@ -42,7 +42,19 @@ export interface PostIdReqParam extends ParamsDictionary {
 }
 
 export interface SharePostReqBody {
-  userId: number
   postId: number
   type: string
+}
+
+export interface LikePostReqBody extends SharePostReqBody {
+  receiverId: number
+}
+
+export interface UpdatePostReqBody {
+  modifiedAt: string
+  communityId: string
+  content?: string
+  images?: any
+  video?: any
+  type?: string
 }

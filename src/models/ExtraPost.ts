@@ -10,11 +10,11 @@ class ExtraPost {
     this.type = type || ''
   }
 
-  getAll = async () => {
+  getAllByType = async (type: string) => {
     const connection = await connectDb()
     try {
-      const sql = 'SELECT * FROM feature_extra_posts'
-      const [result]: any = await connection.execute(sql)
+      const sql = 'SELECT * FROM feature_extra_posts WHERE type=?'
+      const [result]: any = await connection.execute(sql, [type])
       connection.end()
       return result
     } catch (error) {
@@ -22,7 +22,7 @@ class ExtraPost {
     }
   }
 
-  getAllById = async (postId: number, type: string) => {
+  getAllByPostIdAndType = async (postId: number, type: string) => {
     const connection = await connectDb()
     try {
       const [result]: any = await connection.execute('SELECT * FROM feature_extra_posts WHERE postId=? AND type=?', [
@@ -50,10 +50,13 @@ class ExtraPost {
     }
   }
 
-  delete = async (id: number) => {
+  delete = async (id: number, userId: number) => {
     const connection = await connectDb()
     try {
-      const [result]: any = await connection.execute('DELETE FROM feature_extra_posts WHERE id=?', [id])
+      const [result]: any = await connection.execute('DELETE FROM feature_extra_posts WHERE id=? AND userId=?', [
+        id,
+        userId
+      ])
       connection.end()
       return result
     } catch (error) {
