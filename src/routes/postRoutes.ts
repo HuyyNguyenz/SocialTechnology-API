@@ -102,6 +102,12 @@ postRouter.delete(
   Body: UpdatePostReqBody
 */
 postRouter.put('/post/:id', verifyTokenValidator, updatePostValidator, wrapRequestHandler(postController.updatePost))
+/*
+  Path: /article
+  Method: GET
+  Header: Authorization Bear <accessToken>
+  Query: { link:string }
+*/
 postRouter.get('/article', verifyTokenValidator, wrapRequestHandler(postController.getArticle))
 
 export default postRouter

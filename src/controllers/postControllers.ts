@@ -94,7 +94,7 @@ const postController = {
   updatePost: async (req: Request<ParamsDictionary, any, UpdatePostReqBody>, res: Response) => {
     const { id } = req.params
     const result = await postService.handleUpdatePost(Number(id), req.body)
-    res.json(result)
+    return res.json(result)
   },
   getLikes: async (req: Request, res: Response) => {
     const result = await postService.handleGetLikes()
@@ -113,12 +113,8 @@ const postController = {
   },
   getArticle: async (req: Request, res: Response) => {
     const { link } = req.query
-    try {
-      const data = (await axios.get(link as string)).data
-      res.status(200).json(data)
-    } catch (error) {
-      res.status(404).json({ message: 'Lỗi' })
-    }
+    const data = (await axios.get(link as string)).data
+    return res.json(data)
   }
 }
 

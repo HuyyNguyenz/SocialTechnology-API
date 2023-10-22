@@ -88,11 +88,10 @@ const postService = {
     const video = data.video?.name ? JSON.stringify(data.video) : ''
     const sql = `UPDATE posts SET ${data.content ? `content='${data.content}'` : ''}${
       data.modifiedAt ? `,modifiedAt='${data.modifiedAt}'` : ''
-    }${data.images ? `,images='${images}'` : ''}${data.video ? `,video='${video}'` : ''}${
+    }${images ? `,images='${images}'` : ''}${video ? `,video='${video}'` : ''}${
       data.type ? `,type='${data.type}'` : ''
     } WHERE id=${id}`
     await post.update(sql, [])
-    console.log('sql:', sql)
     return { message: POST_MESSAGES.UPDATE_POST_SUCCESSFULLY }
   },
   handleGetLikes: async () => {

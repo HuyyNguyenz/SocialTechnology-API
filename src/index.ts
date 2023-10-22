@@ -12,6 +12,7 @@ import { FriendType } from './types/friendType'
 import userRouter from './routes/userRoutes'
 import { defaultErrorHandler } from './middlewares/errorMiddlewares'
 import postRouter from './routes/postRoutes'
+import commentRouter from './routes/commentRoutes'
 
 dotenv.config()
 const app = express()
@@ -30,6 +31,7 @@ app.use(cors())
 // Initial routes
 app.use('/api', userRouter)
 app.use('/api', postRouter)
+app.use('/api', commentRouter)
 app.use(defaultErrorHandler)
 
 const server = http.createServer(app)
