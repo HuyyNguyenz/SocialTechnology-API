@@ -6,5 +6,6 @@ declare module 'express' {
     user?: UserType
     decodedRefreshToken?: TokenPayload
     decodedAccessToken?: TokenPayload
+    authorId?: number
   }
 }

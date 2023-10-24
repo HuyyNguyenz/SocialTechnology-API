@@ -21,7 +21,7 @@ const postIdSchema = {
   custom: {
     options: async (value: number) => {
       const post = new Post()
-      const sql = 'SELECT * FROM posts WHERE id=?'
+      const sql = 'SELECT * FROM posts WHERE id=? AND deleted=0'
       const [postData] = await post.find(sql, [value])
       if (!postData) {
         throw new ErrorWithStatus({ message: POST_MESSAGES.POST_ID_NOT_FOUND, status: HTTP_STATUS.NOT_FOUND })

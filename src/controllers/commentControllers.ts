@@ -1,5 +1,10 @@
 import { Request, Response } from 'express'
 import commentService from '~/services/commentService'
+import { ParamsDictionary } from 'express-serve-static-core'
+import { CommentReqParam, Pagination, UpdateCommentReqBody } from '~/requestTypes'
+import HTTP_STATUS from '~/constants/httpStatus'
+import { CommentType } from '~/types/commentType'
+import { TokenPayload } from '~/types/userType'
 
 const commentController = {
   getCommentList: async (req: Request, res: Response) => {
@@ -15,46 +20,46 @@ const commentController = {
           comment.video = video
         }
       })
-    res.status(200).json(result)
+    return res.json(result)
   },
-  getCommentListByPost: async (req: Request, res: Response) => {
-    const { postId, limit, offset } = req.params
-    if (postId) {
-      const result = await commentService.handleGetCommentListByPost(Number(postId), Number(limit), Number(offset))
-      result.length > 0 &&
-        Array.from(result).forEach((comment: any) => {
-          if (comment.images) {
-            const images = JSON.parse(comment.images)
-            comment.images = images
-          }
-          if (comment.video) {
-            const video = JSON.parse(comment.video)
-            comment.video = video
-          }
-        })
-      res.status(200).json(result)
-    }
+  getCommentListByPost: async (req: Request<CommentReqParam, any, any, Pagination>, res: Response) => {
+    const { id } = req.params
+    const { limit, page } = req.query
+    const result = await commentService.handleGetCommentListByPost({
+      id: Number(id),
+      limit: Number(limit),
+      page: Number(page)
+    })
+    result.length > 0 &&
+      Array.from(result).forEach((comment: any) => {
+        if (comment.images) {
+          const images = JSON.parse(comment.images)
+          comment.images = images
+        }
+        if (comment.video) {
+          const video = JSON.parse(comment.video)
+          comment.video = video
+        }
+      })
+    return res.json(result)
   },
-  addComment: async (req: Request, res: Response) => {
-    const { createdAt } = req.body
-    if (createdAt) {
-      const result = await commentService.handleAddComment(req.body)
-      res.status(result.status).json(result)
-    }
+  addComment: async (req: Request<ParamsDictionary, any, CommentType>, res: Response) => {
+    const { userId } = req.decodedAccessToken as TokenPayload
+    const authorId = Number(req.authorId)
+    const result = await commentService.handleAddComment(userId, req.body, authorId)
+    return res.status(HTTP_STATUS.CREATED).json(result)
   },
   deleteComment: async (req: Request, res: Response) => {
     const { id } = req.params
-    if (id) {
-      const result = await commentService.handleDeleteComment(Number(id))
-      res.status(result.status).json(result)
-    }
+    const { userId } = req.decodedAccessToken as TokenPayload
+    const result = await commentService.handleDeleteComment(Number(id), userId)
+    return res.json(result)
   },
-  updateComment: async (req: Request, res: Response) => {
+  updateComment: async (req: Request<CommentReqParam, any, UpdateCommentReqBody>, res: Response) => {
     const { id } = req.params
-    if (id) {
-      const result = await commentService.handleUpdateComment(Number(id), req.body)
-      res.status(result.status).json(result)
-    }
+    const { userId } = req.decodedAccessToken as TokenPayload
+    const result = await commentService.handleUpdateComment(Number(id), req.body, userId)
+    return res.json(result)
   }
 }
 

@@ -58,3 +58,14 @@ export interface UpdatePostReqBody {
   video?: any
   type?: string
 }
+
+export interface CommentReqParam extends ParamsDictionary {
+  id: string
+}
+
+export interface UpdateCommentReqBody {
+  modifiedAt: string
+  content?: string
+  images?: any
+  video?: any
+}

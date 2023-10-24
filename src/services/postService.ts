@@ -82,7 +82,7 @@ const postService = {
     await Promise.all([await ep.delete(id, userId), await notify.delete(id, 'likedPost')])
     return { message: POST_MESSAGES.UNLIKE_POST_SUCCESSFULLY }
   },
-  handleUpdatePost: async (id: number, data: UpdatePostReqBody) => {
+  handleUpdatePost: async (id: number, data: UpdatePostReqBody, userId: number) => {
     const post = new Post()
     const images = (data.images?.length as number) > 0 ? JSON.stringify(data.images) : ''
     const video = data.video?.name ? JSON.stringify(data.video) : ''
@@ -90,7 +90,7 @@ const postService = {
       data.modifiedAt ? `,modifiedAt='${data.modifiedAt}'` : ''
     }${images ? `,images='${images}'` : ''}${video ? `,video='${video}'` : ''}${
       data.type ? `,type='${data.type}'` : ''
-    } WHERE id=${id}`
+    } WHERE id=${id} AND userId=${userId}`
     await post.update(sql, [])
     return { message: POST_MESSAGES.UPDATE_POST_SUCCESSFULLY }
   },

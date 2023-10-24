@@ -93,7 +93,8 @@ const postController = {
   },
   updatePost: async (req: Request<ParamsDictionary, any, UpdatePostReqBody>, res: Response) => {
     const { id } = req.params
-    const result = await postService.handleUpdatePost(Number(id), req.body)
+    const { userId } = req.decodedAccessToken as TokenPayload
+    const result = await postService.handleUpdatePost(Number(id), req.body, userId)
     return res.json(result)
   },
   getLikes: async (req: Request, res: Response) => {

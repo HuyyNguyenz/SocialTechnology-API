@@ -1,8 +1,8 @@
+import { COMMENT_MESSAGES } from '~/constants/messages'
 import Comment from '../models/Comment'
 import Notify from '../models/Notify'
-import Post from '../models/Post'
 import { CommentType } from '../types/commentType'
-import { PostType } from '../types/postType'
+import { UpdateCommentReqBody } from '~/requestTypes'
 
 const commentService = {
   handleGetCommentList: async () => {
@@ -10,46 +10,36 @@ const commentService = {
     const result = await comment.getAll()
     return result
   },
-  handleGetCommentListByPost: async (postId: number, limit: number, offset: number) => {
+  handleGetCommentListByPost: async ({ id, limit, page }: { id: number; limit: number; page: number }) => {
     const comment = new Comment()
-    const result = await comment.getAllById(postId, limit, offset)
+    const result = await comment.getAllById(id, limit, limit * (page - 1))
     return result
   },
-  handleAddComment: async (data: CommentType) => {
+  handleAddComment: async (userId: number, data: CommentType, authorId: number) => {
     const images = (data.images?.length as number) > 0 ? JSON.stringify(data.images) : ''
     const video = data.video?.name ? JSON.stringify(data.video) : ''
-    const comment = new Comment(data.content, data.createdAt, '', data.userId, data.postId, images, video)
-    await comment.insert()
-    const comments: CommentType[] = await comment.getAll()
-    const foundComment = comments.find(
-      (comment) =>
-        comment.userId === data.userId &&
-        comment.createdAt === data.createdAt &&
-        Number(comment.postId) === Number(data.postId)
-    )
-    const post = new Post()
-    const sql = 'SELECT * FROM posts WHERE id=?'
-    const values = [data.postId]
-    const foundPost: PostType[] = await post.find(sql, values)
-    if (data.userId !== foundPost[0]?.userId) {
-      const notify = new Notify('unseen', 'comment', Number(foundComment?.id), Number(foundPost[0]?.userId))
+    const comment = new Comment(data.content, data.createdAt, '', userId, data.postId, images, video)
+    const { insertId } = await comment.insert()
+    if (userId !== authorId) {
+      const notify = new Notify('unseen', 'comment', Number(insertId), authorId)
       await notify.insert()
     }
-    return { message: 'Bình luận thành công', status: 201 }
+    return { message: COMMENT_MESSAGES.COMMENT_POST_SUCCESSFULLY }
   },
-  handleDeleteComment: async (id: number) => {
+  handleDeleteComment: async (id: number, userId: number) => {
     const comment = new Comment()
-    await comment.delete(id)
-    return { message: 'Xoá bình luận thành công', status: 201 }
+    await comment.delete(id, userId)
+    return { message: COMMENT_MESSAGES.DELETE_COMMENT_SUCCESSFULLY }
   },
-  handleUpdateComment: async (id: number, data: CommentType) => {
+  handleUpdateComment: async (id: number, data: UpdateCommentReqBody, userId: number) => {
     const comment = new Comment()
-    const sql = 'UPDATE `comments` SET content=?,modifiedAt=?,images=?,video=? WHERE id=?'
     const images = (data.images?.length as number) > 0 ? JSON.stringify(data.images) : ''
     const video = data.video?.name ? JSON.stringify(data.video) : ''
-    const values = [data.content, data.modifiedAt, images, video, id]
-    await comment.update(sql, values)
-    return { message: 'Cập nhật bình luận thành công', status: 200 }
+    const sql = `UPDATE comments SET ${data.content ? `content='${data.content}'` : ''}${
+      data.modifiedAt ? `,modifiedAt='${data.modifiedAt}'` : ''
+    }${images ? `,images='${images}'` : ''}${video ? `,video='${video}'` : ''}WHERE id=${id} AND userId=${userId}`
+    await comment.update(sql, [])
+    return { message: COMMENT_MESSAGES.UPDATE_COMMENT_SUCCESSFULLY }
   }
 }
 

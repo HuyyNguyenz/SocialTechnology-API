@@ -60,3 +60,15 @@ export const POST_MESSAGES = {
   UNLIKE_POST_SUCCESSFULLY: 'Unlike post successfully',
   UPDATE_POST_SUCCESSFULLY: 'Update post successfully'
 } as const
+
+export const COMMENT_MESSAGES = {
+  CREATED_AT_IS_NOT_EMPTY: 'Created at is not empty',
+  CREATED_AT_IS_NOT_VALID: 'Created at is not valid (DD/MM/YYYY HH:MM)',
+  MODIFIED_AT_IS_NOT_EMPTY: 'Modified at is not empty',
+  MODIFIED_AT_IS_NOT_VALID: 'Modified at is not valid (DD/MM/YYYY HH:MM)',
+  COMMENT_ID_MUST_BE_NUMBER: 'Comment id must be number',
+  COMMENT_ID_NOT_FOUND: 'Comment id not found',
+  COMMENT_POST_SUCCESSFULLY: 'Comment post successfully',
+  DELETE_COMMENT_SUCCESSFULLY: 'Delete comment successfully',
+  UPDATE_COMMENT_SUCCESSFULLY: 'Update comment successfully'
+} as const
