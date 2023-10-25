@@ -72,3 +72,14 @@ export const COMMENT_MESSAGES = {
   DELETE_COMMENT_SUCCESSFULLY: 'Delete comment successfully',
   UPDATE_COMMENT_SUCCESSFULLY: 'Update comment successfully'
 } as const
+
+export const FRIEND_MESSAGES = {
+  ID_MUST_BE_NUMBER: 'Id must be number',
+  ID_NOT_FOUND: 'Id not found',
+  FRIEND_ID_MUST_BE_NUMBER: 'Friend id must be number',
+  FRIEND_ID_NOT_FOUND: 'Friend id not found',
+  FRIEND_STATUS_IS_NOT_VALID: 'Friend status is not valid',
+  SENT_REQUEST_ADD_FRIEND_SUCCESSFULLY: 'Sent request add friend successfully',
+  CANCELED_REQUEST_ADD_FRIEND_SUCCESSFULLY: 'Canceled request add friend successfully',
+  ACCEPTED_FRIEND_SUCCESSFULLY: 'Accepted friend successfully'
+} as const

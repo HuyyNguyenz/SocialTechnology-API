@@ -1,3 +1,4 @@
+import { FRIEND_MESSAGES } from '~/constants/messages'
 import Friend from '../models/Friend'
 import Notify from '../models/Notify'
 import { FriendType } from '../types/friendType'
@@ -8,32 +9,27 @@ const friendService = {
     const result = await friend.getAll()
     return result
   },
-  handleRequestMakeFriend: async (data: FriendType) => {
-    const { status, friendId, userId } = data
-    const friend = new Friend(status, friendId, userId)
-    await friend.insert()
-    const friends: FriendType[] = await friend.getAll()
-    const friendFound = friends.find((friend) => friend.friendId === friendId && friend.userId === userId)
-    const notify1 = new Notify('unseen', 'friend', Number(friendFound?.id), Number(friendFound?.friendId))
-    await notify1.insert()
-    const notify2 = new Notify('unseen', 'friend', Number(friendFound?.id), Number(friendFound?.userId))
-    await notify2.insert()
-
-    return { message: 'Đã gửi lời mời kết bạn', status: 201 }
+  handleAddFriend: async (userId: number, data: FriendType) => {
+    const { status, friendId } = data
+    const friend = new Friend(status, Number(friendId), userId)
+    const { insertId } = await friend.insert()
+    const notify1 = new Notify('unseen', 'friend', Number(insertId), Number(friendId))
+    const notify2 = new Notify('unseen', 'friend', Number(insertId), userId)
+    await Promise.all([await notify1.insert(), await notify2.insert()])
+    return { message: FRIEND_MESSAGES.SENT_REQUEST_ADD_FRIEND_SUCCESSFULLY }
   },
   handleDeleteFriend: async (id: number) => {
     const friend = new Friend()
     const notify = new Notify()
-    await friend.delete(id)
-    await notify.delete(id, 'friend')
-    return { message: 'Đã gỡ lời mời kết bạn', status: 201 }
+    await Promise.all([await friend.delete(id), await notify.delete(id, 'friend')])
+    return { message: FRIEND_MESSAGES.CANCELED_REQUEST_ADD_FRIEND_SUCCESSFULLY }
   },
   handleAcceptFriend: async (id: number) => {
     const friend = new Friend()
-    const sql = "UPDATE friends SET status='accept' WHERE id=?"
-    const values = [id]
+    const sql = 'UPDATE friends SET status=? WHERE id=?'
+    const values = ['accept', id]
     await friend.update(sql, values)
-    return { message: 'Đã chấp nhận lời mời kết bạn', status: 200 }
+    return { message: FRIEND_MESSAGES.ACCEPTED_FRIEND_SUCCESSFULLY }
   }
 }
 

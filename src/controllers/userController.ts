@@ -1,9 +1,6 @@
 import { Request, Response } from 'express'
 import { TokenPayload, UserType } from '../types/userType'
 import userService from '../services/userService'
-import commentService from '../services/commentService'
-import friendService from '../services/friendService'
-import { FriendType } from '../types/friendType'
 import notifyService from '../services/notifyService'
 import messageService from '../services/messageService'
 import { ParamsDictionary } from 'express-serve-static-core'
@@ -115,34 +112,9 @@ const userController = {
     const { state } = req.params
     const { userId } = req.decodedAccessToken as TokenPayload
     const result = await userService.handleUpdateUserState(userId, state)
-    res.json(result)
+    return res.json(result)
   },
 
-  getFriendList: async (req: Request, res: Response) => {
-    const result = await friendService.handleGetAllFriend()
-    res.status(200).json(result)
-  },
-  requestMakeFriend: async (req: Request, res: Response) => {
-    const data: FriendType = req.body
-    if (data) {
-      const result = await friendService.handleRequestMakeFriend(data)
-      res.status(result.status).json(result)
-    }
-  },
-  deleteFriend: async (req: Request, res: Response) => {
-    const { id } = req.params
-    if (id) {
-      const result = await friendService.handleDeleteFriend(Number(id))
-      res.status(result.status).json(result)
-    }
-  },
-  acceptFriend: async (req: Request, res: Response) => {
-    const { id } = req.params
-    if (id) {
-      const result = await friendService.handleAcceptFriend(Number(id))
-      res.status(result.status).json(result)
-    }
-  },
   getNotifyList: async (req: Request, res: Response) => {
     const result = await notifyService.handleGetNotifyList()
     res.status(200).json(result)

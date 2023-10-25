@@ -14,7 +14,7 @@ class Friend {
   getAll = async () => {
     const connection = await connectDb()
     try {
-      const [result]: any = await connection.execute('SELECT * FROM `friends`')
+      const [result]: any = await connection.execute('SELECT * FROM friends')
       connection.end()
       return result
     } catch (error) {
