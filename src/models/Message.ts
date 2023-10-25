@@ -29,7 +29,7 @@ class Message {
   getAll = async () => {
     const connection = await connectDb()
     try {
-      const [result]: any = await connection.execute('SELECT * FROM `messages`')
+      const [result]: any = await connection.execute('SELECT * FROM messages')
       connection.end()
       return result
     } catch (error) {
@@ -51,10 +51,13 @@ class Message {
     }
   }
 
-  delete = async (id: number) => {
+  delete = async (id: number, userId: number) => {
     const connection = await connectDb()
     try {
-      const [result]: any = await connection.execute('UPDATE `messages` SET deleted=1 WHERE id=?', [id])
+      const [result]: any = await connection.execute('UPDATE messages SET deleted=1 WHERE id=? AND userId=?', [
+        id,
+        userId
+      ])
       connection.end()
       return result
     } catch (error) {

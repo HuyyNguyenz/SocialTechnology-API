@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import HTTP_STATUS from '~/constants/httpStatus'
-import friendService from '~/services/friendService'
-import { FriendType } from '~/types/friendType'
-import { TokenPayload } from '~/types/userType'
+import friendService from '~/services/friendServices'
+import { FriendType } from '~/types/friendTypes'
+import { TokenPayload } from '~/types/userTypes'
 
 const friendController = {
   getFriendList: async (req: Request, res: Response) => {

@@ -1,5 +1,5 @@
 import { Request } from 'express'
-import { TokenPayload, UserType } from './types/userType'
+import { TokenPayload, UserType } from './types/userTypes'
 
 declare module 'express' {
   interface Request {
@@ -7,5 +7,6 @@ declare module 'express' {
     decodedRefreshToken?: TokenPayload
     decodedAccessToken?: TokenPayload
     authorId?: number
+    friend?: UserType
   }
 }

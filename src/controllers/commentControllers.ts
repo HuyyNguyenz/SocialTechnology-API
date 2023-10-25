@@ -1,10 +1,10 @@
 import { Request, Response } from 'express'
-import commentService from '~/services/commentService'
+import commentService from '~/services/commentServices'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { CommentReqParam, Pagination, UpdateCommentReqBody } from '~/requestTypes'
 import HTTP_STATUS from '~/constants/httpStatus'
-import { CommentType } from '~/types/commentType'
-import { TokenPayload } from '~/types/userType'
+import { CommentType } from '~/types/commentTypes'
+import { TokenPayload } from '~/types/userTypes'
 
 const commentController = {
   getCommentList: async (req: Request, res: Response) => {

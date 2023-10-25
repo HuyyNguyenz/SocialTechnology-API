@@ -1,7 +1,7 @@
 import { COMMENT_MESSAGES } from '~/constants/messages'
 import Comment from '../models/Comment'
 import Notify from '../models/Notify'
-import { CommentType } from '../types/commentType'
+import { CommentType } from '../types/commentTypes'
 import { UpdateCommentReqBody } from '~/requestTypes'
 
 const commentService = {

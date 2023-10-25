@@ -1,3 +1,4 @@
+import { NOTIFY_MESSAGES } from '~/constants/messages'
 import Notify from '../models/Notify'
 
 const notifyService = {
@@ -8,10 +9,10 @@ const notifyService = {
   },
   handleUpdateNotify: async (id: number, receiverId: number) => {
     const notify = new Notify()
-    const sql = "UPDATE notifies SET status='seen' WHERE id=? AND receiverId=?"
-    const values = [id, receiverId]
+    const sql = 'UPDATE notifies SET status=? WHERE id=? AND receiverId=?'
+    const values = ['seen', id, receiverId]
     await notify.update(sql, values)
-    return { message: 'Cập nhật thông báo thành công', status: 200 }
+    return { message: NOTIFY_MESSAGES.UPDATE_NOTIFY_SUCCESSFULLY }
   }
 }
 

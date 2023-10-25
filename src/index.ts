@@ -6,14 +6,16 @@ import cors from 'cors'
 import User from './models/User'
 import Post from './models/Post'
 import Friend from './models/Friend'
-import { PostType } from './types/postType'
-import { UserType } from './types/userType'
-import { FriendType } from './types/friendType'
+import { PostType } from './types/postTypes'
+import { UserType } from './types/userTypes'
+import { FriendType } from './types/friendTypes'
 import userRouter from './routes/userRoutes'
 import { defaultErrorHandler } from './middlewares/errorMiddlewares'
 import postRouter from './routes/postRoutes'
 import commentRouter from './routes/commentRoutes'
 import friendRouter from './routes/friendRoutes'
+import notifyRouter from './routes/notifyRoutes'
+import messageRouter from './routes/messageRoutes'
 
 dotenv.config()
 const app = express()
@@ -34,6 +36,8 @@ app.use('/api', userRouter)
 app.use('/api', postRouter)
 app.use('/api', commentRouter)
 app.use('/api', friendRouter)
+app.use('/api', notifyRouter)
+app.use('/api', messageRouter)
 app.use(defaultErrorHandler)
 
 const server = http.createServer(app)

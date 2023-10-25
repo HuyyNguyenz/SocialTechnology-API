@@ -5,8 +5,8 @@ import { FRIEND_MESSAGES } from '~/constants/messages'
 import { ErrorWithStatus } from '~/models/Error'
 import Friend from '~/models/Friend'
 import User from '~/models/User'
-import { FriendStatus } from '~/types/friendType'
-import { TokenPayload } from '~/types/userType'
+import { FriendStatus } from '~/types/friendTypes'
+import { TokenPayload } from '~/types/userTypes'
 import validate from '~/utils/validation'
 
 const userIdSchema = {

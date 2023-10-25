@@ -69,3 +69,10 @@ export interface UpdateCommentReqBody {
   images?: any
   video?: any
 }
+
+export interface UpdateMessageReqBody {
+  modifiedAt: string
+  content?: string
+  images?: any
+  video?: any
+}

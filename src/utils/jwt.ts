@@ -1,7 +1,7 @@
 import { config } from 'dotenv'
 import jwt from 'jsonwebtoken'
-import { TokenPayload } from '~/types/userType'
-import { JwtType } from '~/types/userType'
+import { TokenPayload } from '~/types/userTypes'
+import { JwtType } from '~/types/userTypes'
 
 config()
 export const signToken = ({ payload, privateKey, options = { algorithm: 'HS256' } }: JwtType) => {

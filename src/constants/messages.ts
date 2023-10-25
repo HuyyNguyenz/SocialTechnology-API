@@ -83,3 +83,24 @@ export const FRIEND_MESSAGES = {
   CANCELED_REQUEST_ADD_FRIEND_SUCCESSFULLY: 'Canceled request add friend successfully',
   ACCEPTED_FRIEND_SUCCESSFULLY: 'Accepted friend successfully'
 } as const
+
+export const NOTIFY_MESSAGES = {
+  NOTIFY_ID_MUST_BE_NUMBER: 'Notify id must be number',
+  NOTIFY_ID_NOT_FOUND: 'Notify id not found',
+  UPDATE_NOTIFY_SUCCESSFULLY: 'Update notify successfully'
+}
+
+export const MESSAGE_MESSAGES = {
+  CREATED_AT_IS_NOT_EMPTY: 'Created at is not empty',
+  CREATED_AT_IS_NOT_VALID: 'Created at is not valid (DD/MM/YYYY HH:MM)',
+  MODIFIED_AT_IS_NOT_EMPTY: 'Modified at is not empty',
+  MODIFIED_AT_IS_NOT_VALID: 'Modified at is not valid (DD/MM/YYYY HH:MM)',
+  FRIEND_ID_MUST_BE_NUMBER: 'Friend id must be number',
+  FRIEND_ID_NOT_FOUND: 'Friend id not found',
+  SENT_MESSAGE_SUCCESSFULLY: 'Sent message successfully',
+  FRIEND_IS_NOT_EXISTS: 'Friend is not exists',
+  MESSAGE_ID_MUST_BE_NUMBER: 'Message id must be number',
+  MESSAGE_ID_NOT_FOUND: 'Message id not found',
+  DELETE_MESSAGE_SUCCESSFULLY: 'Delete message successfully',
+  UPDATE_MESSAGE_SUCCESSFULLY: 'Update message successfully'
+}

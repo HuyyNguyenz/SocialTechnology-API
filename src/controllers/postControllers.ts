@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { Response, Request } from 'express'
-import postService from '~/services/postService'
+import postService from '~/services/postServices'
 import { ParamsDictionary } from 'express-serve-static-core'
 import {
   LikePostReqBody,
@@ -10,9 +10,9 @@ import {
   UpdatePostReqBody,
   UserIdReqParam
 } from '~/requestTypes'
-import { PostType } from '~/types/postType'
+import { PostType } from '~/types/postTypes'
 import HTTP_STATUS from '~/constants/httpStatus'
-import { TokenPayload } from '~/types/userType'
+import { TokenPayload } from '~/types/userTypes'
 
 const postController = {
   getPostList: async (req: Request<ParamsDictionary, any, any, Pagination>, res: Response) => {

@@ -1,7 +1,7 @@
 import { FRIEND_MESSAGES } from '~/constants/messages'
 import Friend from '../models/Friend'
 import Notify from '../models/Notify'
-import { FriendType } from '../types/friendType'
+import { FriendType } from '../types/friendTypes'
 
 const friendService = {
   handleGetAllFriend: async () => {

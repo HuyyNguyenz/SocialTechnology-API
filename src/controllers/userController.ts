@@ -1,8 +1,6 @@
 import { Request, Response } from 'express'
-import { TokenPayload, UserType } from '../types/userType'
-import userService from '../services/userService'
-import notifyService from '../services/notifyService'
-import messageService from '../services/messageService'
+import { TokenPayload, UserType } from '../types/userTypes'
+import userService from '../services/userServices'
 import { ParamsDictionary } from 'express-serve-static-core'
 import {
   RecoveryPasswordReqBody,
@@ -113,55 +111,6 @@ const userController = {
     const { userId } = req.decodedAccessToken as TokenPayload
     const result = await userService.handleUpdateUserState(userId, state)
     return res.json(result)
-  },
-
-  getNotifyList: async (req: Request, res: Response) => {
-    const result = await notifyService.handleGetNotifyList()
-    res.status(200).json(result)
-  },
-  updateNotify: async (req: Request, res: Response) => {
-    const { id } = req.params
-    const { receiverId } = req.body
-    if (id) {
-      const result = await notifyService.handleUpdateNotify(Number(id), Number(receiverId))
-      res.status(result.status).json(result)
-    }
-  },
-  getMessageList: async (req: Request, res: Response) => {
-    const result = await messageService.handleGetMessageList()
-    result.length > 0 &&
-      Array.from(result).forEach((message: any) => {
-        if (message.images) {
-          const images = JSON.parse(message.images)
-          message.images = images
-        }
-        if (message.video) {
-          const video = JSON.parse(message.video)
-          message.video = video
-        }
-      })
-    res.status(200).json(result)
-  },
-  addMessage: async (req: Request, res: Response) => {
-    const { createdAt } = req.body
-    if (createdAt) {
-      const result = await messageService.handleAddMessage(req.body)
-      res.status(result.status).json(result)
-    }
-  },
-  deleteMessage: async (req: Request, res: Response) => {
-    const { id } = req.params
-    if (id) {
-      const result = await messageService.handleDeleteMessage(Number(id))
-      res.status(result.status).json(result)
-    }
-  },
-  updateMessage: async (req: Request, res: Response) => {
-    const { id } = req.params
-    if (id) {
-      const result = await messageService.handleUpdateMessage(Number(id), req.body)
-      res.status(result.status).json(result)
-    }
   }
 }
 
