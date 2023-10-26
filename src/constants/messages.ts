@@ -1,4 +1,5 @@
 export const USER_MESSAGES = {
+  USER_NOT_FOUND: 'User not found',
   EMAIL_IS_NOT_VALID: 'Email is not valid',
   EMAIL_IS_ALREADY_EXISTS: 'Email is already exists',
   EMAIL_OR_PASSWORD_INCORRECT: 'Email or password incorrect',

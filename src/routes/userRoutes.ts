@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import userController from '~/controllers/userController'
 import {
+  getUserValidator,
   loginValidator,
   paginationValidator,
   recoveryPasswordValidator,
@@ -84,10 +85,11 @@ userRouter.get('/search', verifyTokenValidator, paginationValidator, wrapRequest
 */
 userRouter.get('/me', verifyTokenValidator, wrapRequestHandler(userController.getMe))
 /*
-  Path: /user/:username
+  Path: /user/:id
   Method: GET
+  Header: Authorization Bear <accessToken>
 */
-userRouter.get('/user/:username', verifyTokenValidator, usernameValidator, wrapRequestHandler(userController.getUser))
+userRouter.get('/user/:id', verifyTokenValidator, getUserValidator, wrapRequestHandler(userController.getUser))
 /*
   Path: /users
   Method: GET

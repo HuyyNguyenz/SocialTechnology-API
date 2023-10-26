@@ -102,7 +102,7 @@ class UserService {
   handleGetMe = async (userId: number) => {
     const user = new User()
     const sql =
-      'SELECT id,username,email,firstName,lastName,birthDay,createdAt,gender,avatar,backgroundImage FROM users WHERE id=?'
+      'SELECT id,username,email,firstName,lastName,birthDay,createdAt,gender,avatar,backgroundImage,isOnline FROM users WHERE id=?'
     const value = [userId]
     const [result] = await user.find(sql, value)
     const avatar = result.avatar !== '' && JSON.parse(result.avatar)

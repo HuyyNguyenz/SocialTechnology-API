@@ -126,7 +126,29 @@ export const usernameValidator = validate(
         }
       }
     },
-    ['body', 'params']
+    ['body']
+  )
+)
+
+export const getUserValidator = validate(
+  checkSchema(
+    {
+      id: {
+        custom: {
+          options: async (value: number | string, { req }) => {
+            const user = new User()
+            const sql = 'SELECT * FROM users WHERE id=? OR username=?'
+            const [userData] = await user.find(sql, [value, value])
+            if (!userData) {
+              throw new ErrorWithStatus({ message: USER_MESSAGES.USER_NOT_FOUND, status: HTTP_STATUS.NOT_FOUND })
+            }
+            ;(req as Request).user = userData
+            return true
+          }
+        }
+      }
+    },
+    ['params']
   )
 )
 

@@ -42,7 +42,7 @@ const userController = {
     return res.json(result)
   },
   getUser: (req: Request, res: Response) => {
-    const { token, password, isOnline, otpCode, socketId, verify, ...user } = req.user as UserType
+    const { token, password, otpCode, socketId, verify, ...user } = req.user as UserType
     return res.json(user)
   },
   getAllUser: async (req: Request, res: Response) => {
