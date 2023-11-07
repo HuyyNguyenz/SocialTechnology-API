@@ -1,7 +1,7 @@
 import mysql from 'mysql2/promise'
-import dotenv from 'dotenv'
+import { config } from 'dotenv'
 
-dotenv.config()
+config()
 
 const host = process.env.HOST || 'localhost'
 const user = process.env.USER || 'root'
