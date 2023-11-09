@@ -7,11 +7,10 @@ import { ErrorWithStatus } from '~/models/Error'
 import User from '~/models/User'
 import { Gender, UserType } from '~/types/userTypes'
 import validate from '~/utils/validation'
-import { config } from 'dotenv'
 import { verifyToken } from '~/utils/jwt'
 import { enumObjectToArray } from '~/utils/common'
+import { ENV_CONFIG } from '~/constants/config'
 
-config()
 const typeGenderArray = enumObjectToArray(Gender)
 
 const emailSchema = {
@@ -219,7 +218,7 @@ export const refreshTokenValidator = validate(
             try {
               const decodedRefreshToken = await verifyToken({
                 token: value,
-                secretOrPublicKey: process.env.REFRESH_TOKEN_KEY as string
+                secretOrPublicKey: ENV_CONFIG.REFRESH_TOKEN_KEY as string
               })
               ;(req as Request).decodedRefreshToken = decodedRefreshToken
               return true
@@ -315,7 +314,7 @@ export const verifyTokenValidator = validate(
             try {
               const decodedAccessToken = await verifyToken({
                 token,
-                secretOrPublicKey: process.env.ACCESS_TOKEN_KEY as string
+                secretOrPublicKey: ENV_CONFIG.ACCESS_TOKEN_KEY as string
               })
               ;(req as Request).decodedAccessToken = decodedAccessToken
               return true

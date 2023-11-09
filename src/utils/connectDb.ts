@@ -1,12 +1,10 @@
 import mysql from 'mysql2/promise'
-import { config } from 'dotenv'
+import { ENV_CONFIG } from '~/constants/config'
 
-config()
-
-const host = process.env.HOST || 'localhost'
-const user = process.env.USER || 'root'
-const database = process.env.DB
-const password = process.env.PASSWORD || ''
+const host = ENV_CONFIG.HOST || 'localhost'
+const user = ENV_CONFIG.USER || 'root'
+const database = ENV_CONFIG.DB
+const password = ENV_CONFIG.PASSWORD || ''
 
 const connectDb = async () => {
   const pool = await mysql.createPool({

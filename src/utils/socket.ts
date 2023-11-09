@@ -1,16 +1,15 @@
 import { Server as ServerHttp } from 'http'
 import { Server } from 'socket.io'
-import { config } from 'dotenv'
 import Post from '~/models/Post'
 import { PostType } from '~/types/postTypes'
 import User from '~/models/User'
 import { UserType } from '~/types/userTypes'
 import Friend from '~/models/Friend'
 import { FriendType } from '~/types/friendTypes'
+import { ENV_CONFIG } from '~/constants/config'
 
-config()
 const initialSocket = (httpServer: ServerHttp) => {
-  const io = new Server(httpServer, { cors: { origin: process.env.CLIENT as string } })
+  const io = new Server(httpServer, { cors: { origin: ENV_CONFIG.CLIENT as string } })
   io.on('connection', (socket) => {
     socket.on('sendDataClient', async (data) => {
       const post = new Post()

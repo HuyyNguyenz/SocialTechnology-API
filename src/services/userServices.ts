@@ -5,20 +5,19 @@ import User from '../models/User'
 import { UserType } from '../types/userTypes'
 import { emailGen } from '../utils/email'
 import { USER_MESSAGES } from '~/constants/messages'
-import { config } from 'dotenv'
 import { signToken } from '~/utils/jwt'
 import { UpdateProfileReqBody } from '~/requestTypes'
 import { ErrorWithStatus } from '~/models/Error'
 import HTTP_STATUS from '~/constants/httpStatus'
+import { ENV_CONFIG } from '~/constants/config'
 
-config()
 class UserService {
   private generateAccessToken = (userId: number, expiresIn: string) => {
     return signToken({
       payload: {
         userId
       },
-      privateKey: process.env.ACCESS_TOKEN_KEY as string,
+      privateKey: ENV_CONFIG.ACCESS_TOKEN_KEY as string,
       options: {
         expiresIn
       }
@@ -29,7 +28,7 @@ class UserService {
       payload: {
         userId
       },
-      privateKey: process.env.REFRESH_TOKEN_KEY as string,
+      privateKey: ENV_CONFIG.REFRESH_TOKEN_KEY as string,
       options: {
         expiresIn
       }
@@ -50,21 +49,21 @@ class UserService {
     const config = {
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASS
+        user: ENV_CONFIG.EMAIL,
+        pass: ENV_CONFIG.PASS
       }
     }
     const transporter = nodemailer.createTransport(config)
     const html = emailGen(
       userData.lastName,
       'Social Technology',
-      `${process.env.CLIENT}/verify/register/${username}`,
+      `${ENV_CONFIG.CLIENT}/verify/register/${username}`,
       'EMAIL VERIFY',
       'About registering a Social Technology account',
       'To complete account registration. You need to click the button below to authenticate your email'
     )
     await transporter.sendMail({
-      from: process.env.EMAIL, // sender address
+      from: ENV_CONFIG.EMAIL, // sender address
       to: email, // list of receivers
       subject: 'EMAIL VERIFY', // Subject line
       html // html body
@@ -150,14 +149,14 @@ class UserService {
     const config = {
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASS
+        user: ENV_CONFIG.EMAIL,
+        pass: ENV_CONFIG.PASS
       }
     }
     const transporter = nodemailer.createTransport(config)
     const html = emailGen(userData.lastName, 'Social Technology', 'http://127.0.0.1:3000/', otpCode)
     await transporter.sendMail({
-      from: process.env.EMAIL, // sender address
+      from: ENV_CONFIG.EMAIL, // sender address
       to: email, // list of receivers
       subject: 'RECOVERY PASSWORD', // Subject line
       html // html body

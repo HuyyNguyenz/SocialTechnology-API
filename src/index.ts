@@ -8,12 +8,11 @@ import commentRouter from './routes/commentRoutes'
 import friendRouter from './routes/friendRoutes'
 import notifyRouter from './routes/notifyRoutes'
 import messageRouter from './routes/messageRoutes'
-import { config } from 'dotenv'
 import initialSocket from './utils/socket'
+import { ENV_CONFIG } from './constants/config'
 
-config()
 const app = express()
-const port = process.env.PORT || 8080
+const port = ENV_CONFIG.PORT || 8080
 
 // Config express get value from request body
 app.use(express.json())
